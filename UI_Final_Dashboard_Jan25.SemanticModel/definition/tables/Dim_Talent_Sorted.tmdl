@@ -1,0 +1,45 @@
+table Dim_Talent_Sorted
+	lineageTag: a8099e9e-a641-4283-8dc3-66af93f307cc
+
+	column CurrentYearTalentID
+		dataType: string
+		lineageTag: 9d03273f-0af7-4dcb-8637-147ab78ac4c5
+		summarizeBy: none
+		sourceColumn: CurrentYearTalentID
+		sortByColumn: Index
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column Index
+		dataType: string
+		lineageTag: c2c32c4b-3a1c-46c5-8906-06d35115be5f
+		summarizeBy: none
+		sourceColumn: Index
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Talent_Sorted = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_Talent = Glenmark{[Schema="dbo",Item="Dim_Talent"]}[Data],
+				    #"Removed Columns" = Table.RemoveColumns(dbo_Dim_Talent,{"Talent_id", "CurrentYearTalentTrack", "Fact_Employee"}),
+				    #"Removed Duplicates" = Table.Distinct(#"Removed Columns"),
+				    #"Added Custom" = Table.AddColumn(#"Removed Duplicates", "Index", each if [CurrentYearTalentID] = "Outstanding Potential" then 1
+				else if [CurrentYearTalentID] = "Advanced Potential" then 2
+				else if [CurrentYearTalentID] = "Emerging Potential" then 3
+				else if [CurrentYearTalentID] = "Solid Contributor" then 4
+				else if [CurrentYearTalentID] = "N/A" then 5
+				else null),
+				    #"Sorted Rows" = Table.Sort(#"Added Custom",{{"Index", Order.Ascending}})
+				in
+				    #"Sorted Rows"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

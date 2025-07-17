@@ -1,0 +1,49 @@
+table 'Attrition Parameter'
+	lineageTag: aaac88ca-5356-4c46-b416-f316d35beee8
+
+	column 'Attrition Parameter'
+		lineageTag: 375c2c80-f4b1-4b61-89f6-1c1618cc9db9
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Attrition Parameter Order'
+
+		relatedColumnDetails
+			groupByColumn: 'Attrition Parameter Fields'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Attrition Parameter Fields'
+		isHidden
+		lineageTag: c565c8ac-b8e7-4b36-8150-c9420014853e
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Attrition Parameter Order'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Attrition Parameter Order'
+		isHidden
+		formatString: 0
+		lineageTag: 34cc7a24-fb98-4fe7-a5aa-23c28d9a2a69
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Attrition Parameter' = calculated
+		mode: import
+		source =
+				{
+				    ("Overall Attrrition", NAMEOF('All Measures'[Attrition %]), 0),
+				    ("Voluntary Attrition ", NAMEOF('All Measures'[FilteredMeasure]), 1),
+				    ("Inoluntary Attrition ", NAMEOF('All Measures'[Inoluntary Attrition FY]), 2)
+				}
+
+	annotation PBI_Id = 050a87733a424e7185a2abb1dd05d925
+

@@ -1,0 +1,205 @@
+table Dim_Manager
+	lineageTag: a67a3289-1f1d-4a3c-b81d-5befdcae3f79
+
+	column Employee_id
+		dataType: string
+		isHidden
+		lineageTag: 78345b20-784f-47e2-a305-b692e2b15f6c
+		summarizeBy: none
+		sourceColumn: Employee_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		isHidden
+		lineageTag: 61458c43-22a8-4e70-8d6b-aa8ba7bd5959
+		summarizeBy: none
+		sourceColumn: name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Manager_ID
+		dataType: string
+		isHidden
+		lineageTag: 3834b372-fadd-4011-bac8-2378fafc7d49
+		summarizeBy: none
+		sourceColumn: Manager_ID
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column ManagerName =
+			
+			VAR ManagerID = Dim_Manager[Manager_ID]
+			RETURN
+			    IF(
+			        ISBLANK(Dim_Manager[Manager_ID]),
+			        BLANK(),
+			        LOOKUPVALUE(
+			            Dim_Manager[name],
+			            Dim_Manager[Employee_id], ManagerID
+			        )
+			    )
+		isHidden
+		lineageTag: cc30b34d-a2c4-437c-8575-207714519c80
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Level_id = LOOKUPVALUE(Fact_Employee[Level_id], Fact_Employee[Employee_id], VALUE(Dim_Manager[Employee_id]))
+		formatString: 0
+		lineageTag: 22428e5e-64ab-49f5-848e-4c5885d93f45
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column GradeLevel = LOOKUPVALUE(Dim_Level[GradeLevel], Dim_Level[Level_id], Dim_Manager[Level_id])
+		lineageTag: 0762887f-cdc2-4424-8e52-8b63a2eb71fb
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Masked Manager ID' = ```
+			
+			VAR ManagerID = Dim_Manager[Manager_ID]
+			VAR ManagerIDLength = LEN(ManagerID)
+			
+			-- Handle cases where Manager_ID is very short or contains "--"
+			VAR MaskedID = 
+			    IF(
+			        ManagerID = "--", 
+			        ManagerID, 
+			        IF(
+			            ManagerIDLength > 4, 
+			            LEFT(ManagerID, 1) & REPT("X", ManagerIDLength - 4) & RIGHT(ManagerID, 2),
+			            REPT("X", ManagerIDLength)
+			        )
+			    )
+			
+			RETURN MaskedID
+			
+			```
+		lineageTag: e8d40454-15c7-4f7a-9ffc-bd3fa3766852
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Masked Employee ID' = ```
+			
+			VAR ManagerID = Dim_Manager[Employee_id]
+			VAR ManagerIDLength = LEN(ManagerID)
+			
+			-- Handle cases where Manager_ID is very short or contains "--"
+			VAR MaskedID = 
+			    IF(
+			        ManagerID = "--", 
+			        ManagerID, 
+			        IF(
+			            ManagerIDLength > 4, 
+			            LEFT(ManagerID, 1) & REPT("X", ManagerIDLength - 4) & RIGHT(ManagerID, 2),
+			            REPT("X", ManagerIDLength)
+			        )
+			    )
+			
+			RETURN MaskedID
+			
+			```
+		lineageTag: 957de93e-4905-48f9-953a-29d668deea12
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Masked Manager Name' = ```
+			
+			VAR FullName = Dim_Manager[ManagerName] 
+			
+			RETURN 
+			    IF(
+			        ISBLANK(FullName) || FullName = "--", 
+			        FullName, // Keep blank or "--" as is
+			        VAR NameParts = SUBSTITUTE(FullName, ".", "") // Remove dots from titles
+			        VAR Words = SUBSTITUTE(NameParts, " ", "|") // Temporarily replace spaces with "|"
+			        
+			        RETURN 
+			            CONCATENATEX(
+			                ADDCOLUMNS(
+			                    ADDCOLUMNS(
+			                        GENERATESERIES(1, PATHLENGTH(Words)), 
+			                        "Word", PATHITEM(Words, [Value], TEXT)
+			                    ),
+			                    "MaskedWord", 
+			                    IF(
+			                        LEN([Word]) > 2, 
+			                        LEFT([Word], LEN([Word]) - 2) & "**", 
+			                        [Word]
+			                    )
+			                ),
+			                [MaskedWord], 
+			                " "
+			            )
+			    )
+			
+			```
+		lineageTag: 1870d145-3ad6-4126-bbf5-9912f53baff2
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Masked Employee Name' = ```
+			
+			VAR FullName = Dim_Manager[name] 
+			
+			RETURN 
+			    IF(
+			        ISBLANK(FullName) || FullName = "--", 
+			        FullName, // Keep blank or "--" as is
+			        VAR NameParts = SUBSTITUTE(FullName, ".", "") // Remove dots from titles
+			        VAR Words = SUBSTITUTE(NameParts, " ", "|") // Temporarily replace spaces with "|"
+			        
+			        RETURN 
+			            CONCATENATEX(
+			                ADDCOLUMNS(
+			                    ADDCOLUMNS(
+			                        GENERATESERIES(1, PATHLENGTH(Words)), 
+			                        "Word", PATHITEM(Words, [Value], TEXT)
+			                    ),
+			                    "MaskedWord", 
+			                    IF(
+			                        LEN([Word]) > 2, 
+			                        LEFT([Word], LEN([Word]) - 2) & "**", 
+			                        [Word]
+			                    )
+			                ),
+			                [MaskedWord], 
+			                " "
+			            )
+			    )
+			
+			```
+		lineageTag: 2d504740-ce80-4661-9e6f-706f042c8588
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Manager = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_Manager = Glenmark{[Schema="dbo",Item="Dim_Manager"]}[Data]
+				in
+				    dbo_Dim_Manager
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

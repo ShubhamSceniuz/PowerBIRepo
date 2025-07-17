@@ -1,0 +1,610 @@
+table Fact_Employee
+	lineageTag: 5bf8e048-a6cf-418d-a44e-4f403f7d579e
+
+	column Employee_ID
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: cee61501-e24c-49f4-aa4c-cd47a74a0ed1
+		summarizeBy: none
+		sourceColumn: Employee_ID
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Manager_IC_Tagging
+		dataType: string
+		lineageTag: 9313ba38-69c8-48ef-952a-1f4bc2579ae3
+		summarizeBy: none
+		sourceColumn: Manager_IC_Tagging
+
+		annotation SummarizationSetBy = Automatic
+
+	column Team_Span
+		dataType: double
+		lineageTag: c87aa207-cd81-47d1-90d5-79bf22ea585a
+		summarizeBy: sum
+		sourceColumn: Team_Span
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Manager_Span_Distribution
+		dataType: string
+		lineageTag: 6f6b1f77-6aac-4ea4-8bc3-a0a3b3f0cc64
+		summarizeBy: none
+		sourceColumn: Manager_Span_Distribution
+
+		annotation SummarizationSetBy = Automatic
+
+	column Number_of_Layers
+		dataType: double
+		lineageTag: e505c4bb-2b64-4245-a38d-f6fe2ff38917
+		summarizeBy: sum
+		sourceColumn: Number_of_Layers
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Leadership
+		dataType: string
+		lineageTag: 5b644a25-1c3d-4545-8249-3044d20cd349
+		summarizeBy: none
+		sourceColumn: Leadership
+
+		annotation SummarizationSetBy = Automatic
+
+	column High_Performer
+		dataType: string
+		lineageTag: e47939a4-9968-4304-ac2d-537d59d5480c
+		summarizeBy: none
+		sourceColumn: High_Performer
+
+		annotation SummarizationSetBy = Automatic
+
+	column Early_Tenure
+		dataType: string
+		lineageTag: 58c3210f-b787-448c-827a-03896c6e391c
+		summarizeBy: none
+		sourceColumn: Early_Tenure
+
+		annotation SummarizationSetBy = Automatic
+
+	column High_Tenure
+		dataType: string
+		lineageTag: cab9cf9f-068c-4840-86fd-6cc50858786d
+		summarizeBy: none
+		sourceColumn: High_Tenure
+
+		annotation SummarizationSetBy = Automatic
+
+	column Female
+		dataType: string
+		lineageTag: d0a1f1e9-8359-44d2-82ed-a26ffbd61951
+		summarizeBy: none
+		sourceColumn: Female
+
+		annotation SummarizationSetBy = Automatic
+
+	column Critical_Group
+		dataType: string
+		lineageTag: 193fb5c5-d020-4dc5-8158-9e6a94e0b551
+		summarizeBy: none
+		sourceColumn: Critical_Group
+
+		annotation SummarizationSetBy = Automatic
+
+	column Current_Age
+		dataType: double
+		lineageTag: 4877d299-ad65-48a7-ada1-4445bbaf1373
+		summarizeBy: sum
+		sourceColumn: Current_Age
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Tenure
+		dataType: double
+		lineageTag: 267ef494-6313-484b-8694-d6a5edda1815
+		summarizeBy: sum
+		sourceColumn: Tenure
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Years_Since_Last_Promotion
+		dataType: double
+		lineageTag: e591d851-c187-4b0b-bd1b-e6a58edf0344
+		summarizeBy: sum
+		sourceColumn: Years_Since_Last_Promotion
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Previous_Manager_ID
+		dataType: string
+		lineageTag: c7bc5a63-fbcf-4aeb-9f19-fd9fe67e3ea2
+		summarizeBy: none
+		sourceColumn: Previous_Manager_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Same_as_Previous_Manager
+		dataType: string
+		lineageTag: 576df92d-4d36-46dc-8bfd-27a974684d73
+		summarizeBy: none
+		sourceColumn: Same_as_Previous_Manager
+
+		annotation SummarizationSetBy = Automatic
+
+	column Manager_Change_Counter
+		dataType: string
+		lineageTag: 8f8caf41-c96f-4679-8461-e4e1f084078c
+		summarizeBy: none
+		sourceColumn: Manager_Change_Counter
+
+		annotation SummarizationSetBy = Automatic
+
+	column Working_Status
+		dataType: string
+		lineageTag: 9af5d108-844b-4d64-8cbb-98f26e761e3f
+		summarizeBy: none
+		sourceColumn: Working_Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date_of_Joining
+		dataType: dateTime
+		formatString: dd mmmm yyyy
+		lineageTag: 4c0b18ec-a12b-401a-b332-30b7665b6715
+		summarizeBy: none
+		sourceColumn: Date_of_Joining
+
+		variation Variation
+			isDefault
+			relationship: 38bf1d15-55e5-4e80-962f-09f8535f5dea
+			defaultHierarchy: LocalDateTable_824b7eaa-445f-49bc-83d6-6af3b233c43f.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Date_of_Exit
+		dataType: dateTime
+		formatString: dd mmmm yyyy
+		lineageTag: 6adc81b7-6b7a-4535-9d7b-d5663c5710da
+		summarizeBy: none
+		sourceColumn: Date_of_Exit
+
+		variation Variation
+			isDefault
+			relationship: 5cc88c80-28c1-4f9b-af7a-a4fe80db5934
+			defaultHierarchy: LocalDateTable_ee76809d-fdf7-448b-9cd7-26805d5523d6.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Date_of_Birth
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 98d36e96-d664-47d5-b3c8-1cd9965e2e3d
+		summarizeBy: none
+		sourceColumn: Date_of_Birth
+
+		variation Variation
+			isDefault
+			relationship: fa46d66b-882f-416f-816d-ec4343b098d8
+			defaultHierarchy: LocalDateTable_5c44221f-6d4d-49e9-8a6a-9599705bf9c7.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Date_of_Last_Promotion
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 57dce702-c311-48a1-a1c3-55b639d19268
+		summarizeBy: none
+		sourceColumn: Date_of_Last_Promotion
+
+		variation Variation
+			isDefault
+			relationship: d2686b03-8e3d-4e20-bf05-6b6a3785bb42
+			defaultHierarchy: LocalDateTable_b30af061-73c0-4cea-940a-6dc779a31ea4.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Manager_ID
+		dataType: string
+		lineageTag: 4fd11f75-3342-4715-a86e-f7ed4015a25f
+		summarizeBy: none
+		sourceColumn: Manager_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Total_Comp_in_INR
+		dataType: double
+		lineageTag: 3ce1a8ef-f9e2-44f3-8722-6e117e6b04cc
+		summarizeBy: sum
+		sourceColumn: Total_Comp_in_INR
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LTI_CPLB_Current_Year
+		dataType: string
+		lineageTag: 049c16b3-c108-4e14-aa06-784347d28725
+		summarizeBy: none
+		sourceColumn: LTI_CPLB_Current_Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column Current_Year_Critical_Role_Mapping
+		dataType: string
+		lineageTag: 647b84bd-e4f2-4833-9c32-221562383fc1
+		summarizeBy: none
+		sourceColumn: Current_Year_Critical_Role_Mapping
+
+		annotation SummarizationSetBy = Automatic
+
+	column BU_Function_Leader
+		dataType: string
+		isHidden
+		lineageTag: 7121ef95-be09-4576-afd4-5f4ae904a38c
+		summarizeBy: none
+		sourceColumn: BU_Function_Leader
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Snapshot_Date_2
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 0641b3e9-aeeb-4da7-b0a3-01b220e58dbd
+		summarizeBy: none
+		sourceColumn: Snapshot_Date_2
+
+		variation Variation
+			isDefault
+			relationship: d80a2537-8bef-4ecf-9cf2-dc415172d4c9
+			defaultHierarchy: LocalDateTable_53a92a9c-83fa-47a9-adba-bfff2689fda3.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Designation_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 17941020-d378-45d1-83e5-531eca915535
+		summarizeBy: none
+		sourceColumn: Designation_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Employment_Type_id
+		dataType: int64
+		formatString: 0
+		lineageTag: ae11969d-e566-455b-b7ef-d228cc73ea6a
+		summarizeBy: none
+		sourceColumn: Employment_Type_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Level_id
+		dataType: int64
+		formatString: 0
+		lineageTag: b5f95825-794f-43a7-8a9b-a516b4e20ed2
+		summarizeBy: none
+		sourceColumn: Level_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Location_id
+		dataType: int64
+		formatString: 0
+		lineageTag: e8ed7734-ed57-4c5f-a587-a2bf3ed9730a
+		summarizeBy: none
+		sourceColumn: Location_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Unit_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 6c946f3f-6d71-4e8a-b3da-5ddd262f9114
+		summarizeBy: none
+		sourceColumn: Unit_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Business_Unit_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 6a0322e9-67bd-4690-a41d-4e73061160a0
+		summarizeBy: none
+		sourceColumn: Business_Unit_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Rating_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 0f6c22ad-6767-4d2a-94f3-a4c3c027f55e
+		summarizeBy: none
+		sourceColumn: Rating_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Age_Group_id
+		dataType: int64
+		formatString: 0
+		lineageTag: ae42a963-a972-406a-a337-cf6735860280
+		summarizeBy: none
+		sourceColumn: Age_Group_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tenure_Group_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 52a5259c-1200-4a21-bee9-b7a4694cc3b3
+		summarizeBy: none
+		sourceColumn: Tenure_Group_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Working_Age_year = ```
+			
+			                  //  DATEDIFF('Fact Data'[DOJ],IF(ISBLANK('Fact Data'[DOE]),TODAY(),'Fact Data'[DOE]),YEAR)
+			                  (IF(ISBLANK('Fact_Employee'[Date_of_Exit]),Fact_Employee[MaxDate], 'Fact_Employee'[Date_of_Exit]) - Fact_Employee[Date_of_Joining]) / 365.25
+			```
+		lineageTag: 16fa464e-8fcd-4d75-abfd-a0eea01d20f3
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MaxDate = MAX(Fact_Employee[Snapshot_Date_2])
+		formatString: General Date
+		lineageTag: e5ff2688-2960-4f68-9123-1879aee6d351
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: 384734a2-8aeb-4f0b-927b-68b7c7e997fe
+			defaultHierarchy: LocalDateTable_54dc29cb-5e71-48e5-9142-42ebd0405f10.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Column = DATEDIFF(Fact_Employee[Date_of_Joining] , Fact_Employee[MaxDate],DAY)/365
+		lineageTag: fb20db9f-de86-4cc1-abac-0b88faa3843b
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Talent_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 6b25f9b8-1262-4bcf-8ea1-30eae32425bd
+		summarizeBy: none
+		sourceColumn: Talent_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tenure_group(In_Years)
+		dataType: int64
+		formatString: 0
+		lineageTag: 2ec6cd3a-f41c-4f42-814a-f87b2ad8db67
+		summarizeBy: sum
+		sourceColumn: Tenure_group(In_Years)
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	column Critical_Role
+		dataType: string
+		lineageTag: 388eff65-43cc-4d9a-87d3-529660970b9c
+		summarizeBy: none
+		sourceColumn: Critical_Role
+
+		annotation SummarizationSetBy = Automatic
+
+	column ManagerName = ```
+			
+			VAR ManagerID = Fact_Employee[Manager_ID]
+			RETURN
+			    IF(
+			        ISBLANK(ManagerID),
+			        BLANK(),
+			        LOOKUPVALUE(
+			            Dim_Employee[name],
+			            Dim_Employee[Employee_id], ManagerID
+			        )
+			    )
+			
+			```
+		lineageTag: 163a0490-dd2e-4cd7-8d47-87fa6dd132dc
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductionUnit_id
+		dataType: string
+		lineageTag: 1da7a626-1583-4fa5-9db7-05365ffb7fd2
+		summarizeBy: none
+		sourceColumn: ProductionUnit_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column ResearchUnit_id
+		dataType: string
+		lineageTag: 084c2637-53cc-48cd-844b-affe15660ee1
+		summarizeBy: none
+		sourceColumn: ResearchUnit_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Current_Age_1
+		dataType: double
+		lineageTag: bae87c0a-ccf3-4860-91c9-ea8b86ceecc2
+		summarizeBy: sum
+		sourceColumn: Current_Age_1
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TenureMonths
+		dataType: double
+		lineageTag: c11863cd-a6a9-4c7b-bac7-10a18d2966f9
+		summarizeBy: sum
+		sourceColumn: TenureMonths
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Snapshot_date_1
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: ee1df994-9871-4ebe-9f78-716e14b4a5ee
+		summarizeBy: none
+		sourceColumn: Snapshot_date_1
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Tenure_subgroup
+		dataType: string
+		lineageTag: 046c18e7-edcd-43f7-b2af-96e2159709c1
+		summarizeBy: none
+		sourceColumn: Tenure_subgroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column Snapshot_Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: f8177c6c-ad16-466c-8d8b-5c83bbebbf5c
+		summarizeBy: none
+		sourceColumn: Snapshot_Date
+
+		variation Variation
+			isDefault
+			relationship: 46b45027-5ae0-4e0a-9061-2ba151171cd8
+			defaultHierarchy: LocalDateTable_51481b80-6464-4e07-a017-9bf1f502040e.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Masked Employee ID' = ```
+			
+			VAR ManagerID = Fact_Employee[Employee_ID]
+			VAR ManagerIDLength = LEN(ManagerID)
+			
+			-- Handle cases where Manager_ID is very short or contains "--"
+			VAR MaskedID = 
+			    IF(
+			        ManagerID, 
+			        IF(
+			            ManagerIDLength > 4, 
+			            LEFT(ManagerID, 1) & REPT("X", ManagerIDLength - 4) & RIGHT(ManagerID, 2),
+			            REPT("X", ManagerIDLength)
+			        )
+			    )
+			
+			RETURN MaskedID
+			
+			```
+		lineageTag: 2947a8eb-c6f0-445f-8233-120a195106ec
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Masked BU_Function_Leader' = ```
+			
+			VAR FullName = Fact_Employee[BU_Function_Leader] 
+			
+			RETURN 
+			    IF(
+			        ISBLANK(FullName) || FullName = "--", 
+			        FullName, // Keep blank or "--" as is
+			        VAR NameParts = SUBSTITUTE(FullName, ".", "") // Remove dots from titles
+			        VAR Words = SUBSTITUTE(NameParts, " ", "|") // Temporarily replace spaces with "|"
+			        
+			        RETURN 
+			            CONCATENATEX(
+			                ADDCOLUMNS(
+			                    ADDCOLUMNS(
+			                        GENERATESERIES(1, PATHLENGTH(Words)), 
+			                        "Word", PATHITEM(Words, [Value], TEXT)
+			                    ),
+			                    "MaskedWord", 
+			                    IF(
+			                        LEN([Word]) > 2, 
+			                        LEFT([Word], LEN([Word]) - 2) & "**", 
+			                        [Word]
+			                    )
+			                ),
+			                [MaskedWord], 
+			                " "
+			            )
+			    )
+			
+			```
+		lineageTag: 33570e3a-30f1-4239-9074-ed87d83ccf02
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Fact_Employee = m
+		mode: import
+		source = ```
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Fact_Employee = Glenmark{[Schema="dbo",Item="Fact_Employee"]}[Data],
+				    #"Replaced Value" = Table.ReplaceValue(dbo_Fact_Employee,"-","",Replacer.ReplaceText,{"Total_Comp_in_INR"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Replaced Value",{{"Total_Comp_in_INR", type number}}),
+				    #"Duplicated Column" = Table.DuplicateColumn(#"Changed Type", "Snapshot_Date", "Snapshot_Date - Copy"),
+				    #"Replaced Value1" = Table.ReplaceValue(
+				    #"Duplicated Column", 
+				    List.Max(#"Duplicated Column"[Snapshot_Date]),  // Find the maximum date in the column
+				    Date.From(DateTime.LocalNow()),  // Replace it with today's date
+				    Replacer.ReplaceValue, 
+				    {"Snapshot_Date - Copy"}
+				),
+				    #"Filtered Rows" = Table.SelectRows(#"Replaced Value1", each true),
+				    #"Renamed Columns" = Table.RenameColumns(#"Filtered Rows",{{"Snapshot_Date", "Snapshot_Date_2"}, {"Snapshot_Date - Copy", "Snapshot_Date"}})
+				in
+				    #"Renamed Columns"
+				```
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

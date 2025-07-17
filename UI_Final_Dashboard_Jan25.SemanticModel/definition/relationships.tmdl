@@ -1,0 +1,146 @@
+relationship e5109976-12e9-4f22-8f68-1b2d4654b6a6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DateDimension.FullDate
+	toColumn: LocalDateTable_dfd3fe19-30dc-4549-8fd2-9a69254b7e3c.Date
+
+relationship af960eac-f66f-4289-b0ff-52263dde16fb
+	fromColumn: Fact_Employee.Age_Group_id
+	toColumn: Dim_AgeGroup.AgeGroup_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship da975531-ccb6-4383-9b04-eb08cca22d94
+	fromColumn: Fact_Employee.Business_Unit_id
+	toColumn: Dim_BusinessUnit.BusinessUnit_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship f741af1d-d5ec-46d7-bc40-61e5512ca0d7
+	fromColumn: Fact_Employee.Designation_id
+	toColumn: Dim_Designation.Designation_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship e7efd6db-cc9a-4353-b5a6-a68a5865b1da
+	fromColumn: Fact_Employee.Employment_Type_id
+	toColumn: Dim_EmploymentType.EmploymentType_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 900f5afc-bad4-4043-b6cb-b3262b319dcc
+	fromColumn: Fact_Employee.Level_id
+	toColumn: Dim_Level.Level_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 49125c3a-5694-4b15-85f3-0c938ec2c749
+	fromColumn: Fact_Employee.Location_id
+	toColumn: Dim_Location.Location_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 89155088-8d4a-417c-a79e-8135324ac0bf
+	fromColumn: Fact_Employee.Rating_id
+	toColumn: Dim_Rating.Rating_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 7c8d9985-c627-47c2-8614-5fe0ad6c6b3e
+	fromColumn: Fact_Employee.Unit_id
+	toColumn: Dim_Unit.Unit_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 06e45720-b95c-4269-a22d-5e03de9510b9
+	fromColumn: Fact_Employee.Tenure_Group_id
+	toColumn: Dim_TenureGroup.TenureGroup_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 38bf1d15-55e5-4e80-962f-09f8535f5dea
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Fact_Employee.Date_of_Joining
+	toColumn: LocalDateTable_824b7eaa-445f-49bc-83d6-6af3b233c43f.Date
+
+relationship 5cc88c80-28c1-4f9b-af7a-a4fe80db5934
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Fact_Employee.Date_of_Exit
+	toColumn: LocalDateTable_ee76809d-fdf7-448b-9cd7-26805d5523d6.Date
+
+relationship fa46d66b-882f-416f-816d-ec4343b098d8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Fact_Employee.Date_of_Birth
+	toColumn: LocalDateTable_5c44221f-6d4d-49e9-8a6a-9599705bf9c7.Date
+
+relationship d2686b03-8e3d-4e20-bf05-6b6a3785bb42
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Fact_Employee.Date_of_Last_Promotion
+	toColumn: LocalDateTable_b30af061-73c0-4cea-940a-6dc779a31ea4.Date
+
+relationship 384734a2-8aeb-4f0b-927b-68b7c7e997fe
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Fact_Employee.MaxDate
+	toColumn: LocalDateTable_54dc29cb-5e71-48e5-9142-42ebd0405f10.Date
+
+relationship 88175853-a839-455c-a5f8-f0e1636ff06c
+	fromColumn: Fact_Employee.Talent_id
+	toColumn: Dim_Talent.Talent_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship b6641dc6-3008-d838-b1f4-5a3873db4a06
+	fromColumn: Fact_Employee.ResearchUnit_id
+	toColumn: Dim_ResearchUnit.ResearchUnit_id
+
+relationship ad8587d4-e12c-98bb-37e6-acad637682a7
+	fromColumn: Fact_Employee.ProductionUnit_id
+	toColumn: Dim_ProductionUnit.ProductionUnit_id
+
+relationship 4eccc27f-27b3-47ff-9de6-c7cccac6ea2a
+	fromColumn: Fact_Employee.Employee_ID
+	toColumn: Dim_Employee.Employee_id
+
+relationship 9097add4-6b70-cdbc-03c6-0e6152143a43
+	crossFilteringBehavior: bothDirections
+	fromColumn: Fact_Employee.Employee_ID
+	toColumn: Dim_Manager_ids.ManagerID
+
+relationship a9444a35-c079-e644-9331-9a1d1b289c40
+	fromColumn: Dim_Manager.Manager_ID
+	toColumn: Dim_Manager_ids.ManagerID
+
+relationship d20e25f7-3c8a-9be9-0477-3b867b68123e
+	fromColumn: Fact_Employee.Critical_Group
+	toColumn: Dim_Critical_Switch.'Critical Group'
+
+relationship e1bba18f-a480-d397-4a8a-6596e0f6dc95
+	crossFilteringBehavior: bothDirections
+	fromColumn: 'Dim_Critical Role'.'Critical Group'
+	toColumn: Dim_Critical_Switch.'Critical Group'
+
+relationship d80a2537-8bef-4ecf-9cf2-dc415172d4c9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Fact_Employee.Snapshot_Date_2
+	toColumn: LocalDateTable_53a92a9c-83fa-47a9-adba-bfff2689fda3.Date
+
+relationship 46b45027-5ae0-4e0a-9061-2ba151171cd8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Fact_Employee.Snapshot_Date
+	toColumn: LocalDateTable_51481b80-6464-4e07-a017-9bf1f502040e.Date
+
+relationship d37125be-3176-618b-86d4-9c1ba4f65d64
+	fromColumn: Fact_Employee.Snapshot_date_1
+	toColumn: DateDimension.FullDate
+
+relationship 18db09ef-caa4-359e-45c2-df0191f0bf05
+	fromColumn: Fact_Employee.Tenure_subgroup
+	toColumn: Dim_Subtenure.Tenure_subgroup
+
+relationship 39edc98e-62ae-2b90-175e-c80698f5a8f8
+	fromColumn: Dim_Talent.CurrentYearTalentID
+	toColumn: Dim_Talent_Sorted.CurrentYearTalentID
+
+relationship 1a78071f-1e1d-9e1b-6d2e-7665af6218cd
+	fromColumn: Fact_Employee.Employee_ID
+	toColumn: risk_df.'Employee ID'
+

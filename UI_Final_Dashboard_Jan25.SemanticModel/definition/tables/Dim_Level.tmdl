@@ -1,0 +1,73 @@
+table Dim_Level
+	lineageTag: 8f8e0ef7-ba37-453c-8b79-17515450b9cb
+
+	column Level_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 3ea2d69e-7324-4f72-84cd-228c2398ee2f
+		summarizeBy: none
+		sourceColumn: Level_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column GradeLevel
+		dataType: string
+		lineageTag: 73f0cbcf-09f4-4bf5-a1a6-5dd7066a6013
+		summarizeBy: none
+		sourceColumn: GradeLevel
+
+		annotation SummarizationSetBy = Automatic
+
+	column GradeLevelCategory
+		dataType: string
+		lineageTag: 82f8ddde-2feb-414b-9e1b-c31dea43cb76
+		summarizeBy: none
+		sourceColumn: GradeLevelCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column LevelGroups = ```
+			
+			SWITCH(
+			    TRUE(),
+			       Dim_Level[GradeLevelCategory]= "SS1 and SS2", 1,
+			        Dim_Level[GradeLevelCategory]= "SM1 to SM3", 2,
+			        Dim_Level[GradeLevelCategory]="SM4 to SM7", 3,
+			        Dim_Level[GradeLevelCategory]="CM1 and CM1A", 4,
+			        Dim_Level[GradeLevelCategory]="CM2 & Above", 5,
+			        Dim_Level[GradeLevelCategory]="Trainee, Contract, Retainer", 6
+			       
+			 
+			 
+			    
+			)
+			```
+		formatString: 0
+		lineageTag: 51643412-35fc-4815-b1ea-56e563f5ad99
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'New Grade' = Dim_Level[GradeLevelCategory]
+		lineageTag: dc1ab398-07fa-4aa0-a028-abc40cf7a145
+		summarizeBy: none
+		sortByColumn: LevelGroups
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Level = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_Level = Glenmark{[Schema="dbo",Item="Dim_Level"]}[Data]
+				in
+				    dbo_Dim_Level
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

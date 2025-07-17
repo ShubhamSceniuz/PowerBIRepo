@@ -1,0 +1,34 @@
+table Dim_ResearchUnit
+	lineageTag: e1ea3067-f1e1-4ce6-8eb5-8acd5fefb1a0
+
+	column ResearchUnit_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 4a38ebf2-0ca4-427b-a4d0-c2ba9d33abf6
+		summarizeBy: none
+		sourceColumn: ResearchUnit_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column ResearchUnit
+		dataType: string
+		lineageTag: 8c857fe9-4a7d-4a93-89b8-79250e82361b
+		summarizeBy: none
+		sourceColumn: ResearchUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_ResearchUnit = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_ResearchUnit = Glenmark{[Schema="dbo",Item="Dim_ResearchUnit"]}[Data]
+				in
+				    dbo_Dim_ResearchUnit
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

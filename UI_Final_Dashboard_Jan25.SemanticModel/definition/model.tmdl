@@ -1,0 +1,54 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-IN
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["DateDimension","Dim_AgeGroup","Dim_BusinessUnit","Dim_Designation","Dim_Employee","Dim_EmploymentType","Dim_Level","Dim_Location","Dim_Rating","Dim_Unit","Dim_TenureGroup","Fact_Employee","Dim_Talent","Dim_Manager","Dim_ResearchUnit","Dim_ProductionUnit","Dim_Manager_ids","Dim_Critical_Switch","Dim_Critical Role","Dim_Subtenure","best_df","risk_df_python","Dim_Talent_Sorted","risk_df"]
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBIDesktopVersion = 2.145.1105.0 (25.07)+decbc46fce458c5b8d5109d6f32a743f2ac949c8
+
+ref table DateDimension
+ref table DateTableTemplate_5f98ec1b-e2f5-4bb6-922e-ea5b4b237f6c
+ref table LocalDateTable_dfd3fe19-30dc-4549-8fd2-9a69254b7e3c
+ref table Dim_AgeGroup
+ref table Dim_BusinessUnit
+ref table Dim_Designation
+ref table Dim_Employee
+ref table Dim_EmploymentType
+ref table Dim_Level
+ref table Dim_Location
+ref table Dim_Rating
+ref table Dim_Unit
+ref table Dim_TenureGroup
+ref table Fact_Employee
+ref table 'All Measures'
+ref table LocalDateTable_824b7eaa-445f-49bc-83d6-6af3b233c43f
+ref table LocalDateTable_ee76809d-fdf7-448b-9cd7-26805d5523d6
+ref table LocalDateTable_5c44221f-6d4d-49e9-8a6a-9599705bf9c7
+ref table LocalDateTable_b30af061-73c0-4cea-940a-6dc779a31ea4
+ref table 'View by'
+ref table DatePara
+ref table 'Parameter 2'
+ref table LocalDateTable_54dc29cb-5e71-48e5-9142-42ebd0405f10
+ref table Dim_Talent
+ref table 'Attrition Parameter'
+ref table Dim_Manager
+ref table Dim_ResearchUnit
+ref table Dim_ProductionUnit
+ref table Dim_Manager_ids
+ref table Dim_Critical_Switch
+ref table 'Dim_Critical Role'
+ref table LocalDateTable_53a92a9c-83fa-47a9-adba-bfff2689fda3
+ref table LocalDateTable_51481b80-6464-4e07-a017-9bf1f502040e
+ref table Dim_Subtenure
+ref table best_df
+ref table Dim_Talent_Sorted
+ref table risk_df
+
+ref cultureInfo en-US
+

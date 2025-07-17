@@ -1,0 +1,34 @@
+table Dim_Designation
+	lineageTag: 573502ed-c78f-4769-b444-f1d8bee3c825
+
+	column Designation_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 9a0ce49a-2332-4f85-8c92-b8388735bae2
+		summarizeBy: none
+		sourceColumn: Designation_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Designation
+		dataType: string
+		lineageTag: 86ebde26-a1f8-4d4b-b185-68cc5822d86f
+		summarizeBy: none
+		sourceColumn: Designation
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Designation = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_Designation = Glenmark{[Schema="dbo",Item="Dim_Designation"]}[Data]
+				in
+				    dbo_Dim_Designation
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

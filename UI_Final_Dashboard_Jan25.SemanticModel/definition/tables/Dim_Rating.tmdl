@@ -1,0 +1,48 @@
+table Dim_Rating
+	lineageTag: 79ec5b69-749e-43a3-b4f2-d6b6c3d05a4f
+
+	column Rating_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 04f33bb5-c06c-47c7-809c-7ec213ba8cc6
+		summarizeBy: none
+		sourceColumn: Rating_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year2Rating
+		dataType: string
+		lineageTag: ffe3b872-4f3a-49f6-8191-f964259c45e2
+		summarizeBy: none
+		sourceColumn: Year2Rating
+
+		annotation SummarizationSetBy = Automatic
+
+	column PreviousYearRating
+		dataType: string
+		lineageTag: 00c2244a-a8ae-4663-9c40-635757721075
+		summarizeBy: none
+		sourceColumn: PreviousYearRating
+
+		annotation SummarizationSetBy = Automatic
+
+	column CurrentYearRating
+		dataType: string
+		lineageTag: a99d7184-1cfa-4134-b304-2a778fe9fd89
+		summarizeBy: none
+		sourceColumn: CurrentYearRating
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Rating = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_Rating = Glenmark{[Schema="dbo",Item="Dim_Rating"]}[Data]
+				in
+				    dbo_Dim_Rating
+
+	annotation PBI_ResultType = Table
+

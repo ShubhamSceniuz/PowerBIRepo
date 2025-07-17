@@ -1,0 +1,273 @@
+table risk_df
+	lineageTag: 2a586c38-16b1-4209-978f-9bf2d250fb0a
+
+	column 'Employee ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: f38ae93c-e1cb-411c-b4f1-3e848e9659fc
+		summarizeBy: none
+		sourceColumn: Employee ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Risk %'
+		dataType: double
+		lineageTag: cd97ee9e-1379-475f-9b0d-2777badf7541
+		summarizeBy: none
+		sourceColumn: Risk %
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Risk Category'
+		dataType: string
+		lineageTag: 780487ae-f7a4-48e8-8d56-c34e0390b357
+		summarizeBy: none
+		sourceColumn: Risk Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column '3G Grade Level Factor'
+		dataType: double
+		lineageTag: 8c1b82cd-0b8c-476f-a638-d5b023234769
+		summarizeBy: none
+		sourceColumn: 3G Grade Level Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Grade Level Category Factor'
+		dataType: double
+		lineageTag: b8e94c5a-93ce-4da3-b7b3-df969ce82383
+		summarizeBy: none
+		sourceColumn: Grade Level Category Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Tenure Factor'
+		dataType: double
+		lineageTag: 1327befd-403d-4c94-98f6-e35bae172259
+		summarizeBy: none
+		sourceColumn: Tenure Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Days Since Promotion Factor'
+		dataType: double
+		lineageTag: ecb1fca2-88bd-49eb-875e-bb52bd7a3431
+		summarizeBy: none
+		sourceColumn: Days Since Promotion Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Applicable For Benefits Overall Factor'
+		dataType: double
+		lineageTag: c50e72dd-8037-4b54-b2f5-05aa6004bad4
+		summarizeBy: none
+		sourceColumn: Applicable For Benefits Overall Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Average Fixed Increase % Factor'
+		dataType: double
+		lineageTag: 74d46178-20dd-4c3f-9a55-fdc428cf6369
+		summarizeBy: none
+		sourceColumn: Average Fixed Increase % Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Average LTI Factor'
+		dataType: double
+		lineageTag: f857fd47-e8dc-409b-b6a3-30d13af5686e
+		summarizeBy: none
+		sourceColumn: Average LTI Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Fixed Salary % of Total Comp Factor'
+		dataType: double
+		lineageTag: c789ce04-fb47-4595-bede-dae4a696937e
+		summarizeBy: none
+		sourceColumn: Fixed Salary % of Total Comp Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Average Team Compensation Factor'
+		dataType: double
+		lineageTag: 20012be1-7176-4c92-8a44-c684fc671fe2
+		summarizeBy: none
+		sourceColumn: Average Team Compensation Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Difference from Average Team Compensation Factor'
+		dataType: double
+		lineageTag: 13711059-27ef-4ddd-8e5a-dba624653d77
+		summarizeBy: none
+		sourceColumn: Difference from Average Team Compensation Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Average Team Increment Factor'
+		dataType: double
+		lineageTag: 0954a814-5865-4874-bf7e-cdad3f0c0d8b
+		summarizeBy: none
+		sourceColumn: Average Team Increment Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Difference from Average Team Increment Factor'
+		dataType: double
+		lineageTag: 552a6f00-e26a-4893-b2f9-395e8bd4ef90
+		summarizeBy: none
+		sourceColumn: Difference from Average Team Increment Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Country Factor'
+		dataType: double
+		lineageTag: a0ef55cf-fb8f-449a-9ece-41de77b0006d
+		summarizeBy: none
+		sourceColumn: Country Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Location Factor'
+		dataType: double
+		lineageTag: 32559512-daf1-4048-acd4-bc1258c4917a
+		summarizeBy: none
+		sourceColumn: Location Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'BU Factor'
+		dataType: double
+		lineageTag: 74ce53a2-16a7-4420-afd9-4aeae7f5faf3
+		summarizeBy: none
+		sourceColumn: BU Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'SBU Factor'
+		dataType: double
+		lineageTag: 9f723285-1d69-4f55-a0d9-45b508d4d095
+		summarizeBy: none
+		sourceColumn: SBU Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Function Factor'
+		dataType: double
+		lineageTag: f1c12951-a968-46ef-965d-0fb3a6821012
+		summarizeBy: none
+		sourceColumn: Function Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Sub Function Factor'
+		dataType: double
+		lineageTag: c16ff9c7-8069-47e3-8c25-d446303adedf
+		summarizeBy: none
+		sourceColumn: Sub Function Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'KD Factor'
+		dataType: double
+		lineageTag: ec3f002d-9ec6-48aa-9d85-b34eac1fbf31
+		summarizeBy: none
+		sourceColumn: KD Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Reporting Leader 1 (i.e. DR of Glenn) Factor'
+		dataType: double
+		lineageTag: 9ddd8621-ff95-4d5f-87bf-5593426fdcf8
+		summarizeBy: none
+		sourceColumn: Reporting Leader 1 (i.e. DR of Glenn) Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'BU/Function Leader Factor'
+		dataType: double
+		lineageTag: 430c3cb4-cf1d-4c4d-bb74-fb00ee74ca8a
+		summarizeBy: none
+		sourceColumn: BU/Function Leader Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Function Tagging Final Factor'
+		dataType: double
+		lineageTag: 1c0263bd-b56c-470f-a044-b6c655b14772
+		summarizeBy: none
+		sourceColumn: Function Tagging Final Factor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Likely Reason For Attrition'
+		dataType: string
+		lineageTag: 7181e758-16d0-4daf-aa4c-8b29036e3e89
+		summarizeBy: none
+		sourceColumn: Likely Reason For Attrition
+
+		annotation SummarizationSetBy = Automatic
+
+	partition risk_df = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\Admin\OneDrive - Sceniuz IT Division of Mahapatra Universal Limited\Glenmark Aishwarya\Warhouse Version\employee_risks_Dec24.xlsx"), null, true),
+				    Sheet1_Sheet = Source{[Item="Sheet1",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Sheet1_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Employee ID", Int64.Type}, {"Risk %", type number}, {"Risk Category", type text}, {"3G Grade Level Factor", type number}, {"Grade Level Category Factor", type number}, {"Tenure Factor", type number}, {"Days Since Promotion Factor", type number}, {"Applicable For Benefits Overall Factor", type number}, {"Average Fixed Increase % Factor", type number}, {"Average LTI Factor", type number}, {"Fixed Salary % of Total Comp Factor", type number}, {"Average Team Compensation Factor", type number}, {"Difference from Average Team Compensation Factor", type number}, {"Average Team Increment Factor", type number}, {"Difference from Average Team Increment Factor", type number}, {"Country Factor", type number}, {"Location Factor", type number}, {"BU Factor", type number}, {"SBU Factor", type number}, {"Function Factor", type number}, {"Sub Function Factor", type number}, {"KD Factor", type number}, {"Reporting Leader 1 (i.e. DR of Glenn) Factor", type number}, {"BU/Function Leader Factor", type number}, {"Function Tagging Final Factor", type number}, {"Likely Reason For Attrition", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,54 @@
+table Dim_Subtenure
+	lineageTag: 3506d56a-07ff-4f32-948f-2b230c66948f
+
+	column Tenure_subgroup
+		dataType: string
+		lineageTag: ada69d67-99c1-432d-8f20-a8e426dbcbde
+		summarizeBy: none
+		sourceColumn: Tenure_subgroup
+		sortByColumn: Sub_id
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sub_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 317c4052-8631-48e7-8d43-3ed9ba0ffc70
+		summarizeBy: none
+		sourceColumn: Sub_id
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Subtenure = m
+		mode: import
+		source = ```
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Fact_Employee = Glenmark{[Schema="dbo",Item="Fact_Employee"]}[Data],
+				    #"Replaced Value" = Table.ReplaceValue(dbo_Fact_Employee,"-","",Replacer.ReplaceText,{"Total_Comp_in_INR"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Replaced Value",{{"Total_Comp_in_INR", type number}}),
+				    #"Duplicated Column" = Table.DuplicateColumn(#"Changed Type", "Snapshot_Date", "Snapshot_Date - Copy"),
+				    #"Replaced Value1" = Table.ReplaceValue(
+				    #"Duplicated Column", 
+				    List.Max(#"Duplicated Column"[Snapshot_Date]),  // Find the maximum date in the column
+				    Date.From(DateTime.LocalNow()),  // Replace it with today's date
+				    Replacer.ReplaceValue, 
+				    {"Snapshot_Date - Copy"}
+				),
+				    #"Filtered Rows" = Table.SelectRows(#"Replaced Value1", each true),
+				    #"Renamed Columns" = Table.RenameColumns(#"Filtered Rows",{{"Snapshot_Date", "Snapshot_Date_2"}, {"Snapshot_Date - Copy", "Snapshot_Date"}}),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Renamed Columns",{"Tenure_subgroup"}),
+				    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns"),
+				    #"Added Index" = Table.AddIndexColumn(#"Removed Duplicates", "Index", 1, 1, Int64.Type),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Added Index",{{"Index", "Sub_id"}})
+				in
+				    #"Renamed Columns1"
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,42 @@
+table Dim_BusinessUnit
+	lineageTag: 3f103d70-1e02-4223-95af-862bf81c6b51
+
+	column BusinessUnit_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 483070f0-95c1-4022-90d6-f03ff42634db
+		summarizeBy: none
+		sourceColumn: BusinessUnit_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column BU
+		dataType: string
+		lineageTag: c3f30d3e-705b-4b13-a722-a2a9822cfa90
+		summarizeBy: none
+		sourceColumn: BU
+
+		annotation SummarizationSetBy = Automatic
+
+	column SBU
+		dataType: string
+		lineageTag: 94bca416-e64e-4b55-94df-15ec337bcfe4
+		summarizeBy: none
+		sourceColumn: SBU
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_BusinessUnit = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_BusinessUnit = Glenmark{[Schema="dbo",Item="Dim_BusinessUnit"]}[Data]
+				in
+				    dbo_Dim_BusinessUnit
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

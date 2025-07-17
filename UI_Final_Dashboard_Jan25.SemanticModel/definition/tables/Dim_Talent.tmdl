@@ -1,0 +1,42 @@
+table Dim_Talent
+	lineageTag: 2b3ceecd-fcc5-434e-a640-225ae1b6ffe4
+
+	column Talent_id
+		dataType: int64
+		formatString: 0
+		lineageTag: fa6c1bc0-60a0-4237-8e80-14934b612c09
+		summarizeBy: none
+		sourceColumn: Talent_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column CurrentYearTalentID
+		dataType: string
+		lineageTag: 49506f01-8ae1-4e4d-a135-b2b1e526350c
+		summarizeBy: none
+		sourceColumn: CurrentYearTalentID
+
+		annotation SummarizationSetBy = Automatic
+
+	column CurrentYearTalentTrack
+		dataType: string
+		lineageTag: eba45d7b-cb68-43ea-8791-030199a68723
+		summarizeBy: none
+		sourceColumn: CurrentYearTalentTrack
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Talent = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_Talent = Glenmark{[Schema="dbo",Item="Dim_Talent"]}[Data]
+				in
+				    dbo_Dim_Talent
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

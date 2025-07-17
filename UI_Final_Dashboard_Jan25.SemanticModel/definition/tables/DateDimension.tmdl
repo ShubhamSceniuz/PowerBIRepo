@@ -1,0 +1,194 @@
+table DateDimension
+	lineageTag: 80675615-7cd6-41a9-8c9b-a6d17525cdd7
+
+	column DateKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 046a530d-562e-476e-ab7e-b9968e252d23
+		summarizeBy: count
+		sourceColumn: DateKey
+		sortByColumn: FiscalMonth
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column FullDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: f73ccbe0-2b4c-44c4-8c8b-8310d8a8b371
+		summarizeBy: none
+		sourceColumn: FullDate
+
+		variation Variation
+			isDefault
+			relationship: e5109976-12e9-4f22-8f68-1b2d4654b6a6
+			defaultHierarchy: LocalDateTable_dfd3fe19-30dc-4549-8fd2-9a69254b7e3c.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 648a3ffc-4308-4653-ae4a-1849c5c6c151
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: int64
+		formatString: 0
+		lineageTag: 833f489b-639f-426e-a18f-7d5519ac1a99
+		summarizeBy: sum
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		dataType: int64
+		formatString: 0
+		lineageTag: af46a69b-ab7f-4b3f-a82a-4a9e9e573ee8
+		summarizeBy: sum
+		sourceColumn: Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthName
+		dataType: string
+		lineageTag: 888271c3-b90d-4a39-b9af-8d9fd1aa8cea
+		summarizeBy: none
+		sourceColumn: MonthName
+		sortByColumn: FiscalMonth
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column Day
+		dataType: int64
+		formatString: 0
+		lineageTag: 79e71c8b-605e-442f-bb2d-952d65cdd10b
+		summarizeBy: sum
+		sourceColumn: Day
+
+		annotation SummarizationSetBy = Automatic
+
+	column DayOfWeek
+		dataType: int64
+		formatString: 0
+		lineageTag: bf3c69be-6c75-4d45-9e15-2639d1574b2b
+		summarizeBy: sum
+		sourceColumn: DayOfWeek
+
+		annotation SummarizationSetBy = Automatic
+
+	column DayOfWeekName
+		dataType: string
+		lineageTag: 327535fa-a24d-42a6-abb8-40eeac3ccc3f
+		summarizeBy: none
+		sourceColumn: DayOfWeekName
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsWeekend
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: d00349d9-9715-4281-9dd7-4f4767f06095
+		summarizeBy: none
+		sourceColumn: IsWeekend
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Financial Year' = ```
+			"FY " &
+			        FORMAT(
+			            IF(MONTH('DateDimension'[FullDate]) > 3, YEAR('DateDimension'[FullDate]), YEAR('DateDimension'[FullDate]) - 1),
+			            "00"
+			        ) & "-" &
+			        FORMAT(
+			            IF(MONTH('DateDimension'[FullDate]) > 3, YEAR('DateDimension'[FullDate]) + 1, YEAR('DateDimension'[FullDate])),
+			            "00"
+			        )
+			 
+			```
+		lineageTag: ec7cb66d-ac3b-4cf9-8d11-165b4ac615b0
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthYear = FORMAT(DateDimension[FullDate],"MMM-YY")
+		lineageTag: 98b95bff-2ab2-4c5c-83c6-a9da824cd9f8
+		summarizeBy: none
+		sortByColumn: FiscalMonth
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column FiscalMonth = ```
+			
+			IF(MONTH('DateDimension'[FullDate]) >= 4, 
+			    MONTH('DateDimension'[FullDate]) - 3, 
+			    MONTH('DateDimension'[FullDate]) + 9
+			)
+			
+			```
+		formatString: 0
+		lineageTag: aa1bf0f5-b591-4bab-b92d-7a5461d9c2ba
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column FiscalYear = ```
+			
+			IF(MONTH('DateDimension'[FullDate]) >= 4, 
+			    YEAR('DateDimension'[FullDate]), 
+			    YEAR('DateDimension'[FullDate]) - 1
+			)
+			
+			```
+		formatString: 0
+		lineageTag: cc94a62d-1a0d-48f7-bd68-e2e5f425e86c
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column FiscalQuarter = ```
+			
+			VAR FiscalMonthNumber = IF(
+			    MONTH('DateDimension'[FullDate]) >= 4, 
+			    MONTH('DateDimension'[FullDate]) - 3, 
+			    MONTH('DateDimension'[FullDate]) + 9
+			)
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    FiscalMonthNumber IN {1, 2, 3}, "Q1",
+			    FiscalMonthNumber IN {4, 5, 6}, "Q2",
+			    FiscalMonthNumber IN {7, 8, 9}, "Q3",
+			    FiscalMonthNumber IN {10, 11, 12}, "Q4"
+			)
+			
+			```
+		lineageTag: 3045055e-237e-44c5-a2fb-78ef72097bfd
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DateDimension = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_DateDimension = Glenmark{[Schema="dbo",Item="DateDimension"]}[Data]
+				in
+				    dbo_DateDimension
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

@@ -1,0 +1,68 @@
+table Dim_TenureGroup
+	lineageTag: b9ba36bc-72a6-4752-86ed-fb9aadb2ae7c
+
+	column TenureGroup_id
+		dataType: int64
+		formatString: 0
+		lineageTag: eb99cf34-d7df-4e5a-9509-e1dcefd766d8
+		summarizeBy: none
+		sourceColumn: TenureGroup_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column TenureGroup
+		dataType: string
+		lineageTag: 97ca1e28-b3b2-445a-9166-1f7be58c695d
+		summarizeBy: none
+		sourceColumn: TenureGroup
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sub Tenure Groups' = ```
+			
+			SWITCH(
+			    TRUE(),
+			       Dim_TenureGroup[TenureGroup]= "Under 6M", 1,
+			       Dim_TenureGroup[TenureGroup]=  "6M - 1Y", 2,
+			       Dim_TenureGroup[TenureGroup]=  "1-2Y", 3,
+			       Dim_TenureGroup[TenureGroup]=  "2-5Y", 4,
+			       Dim_TenureGroup[TenureGroup]=  "5-7Y", 5,
+			       Dim_TenureGroup[TenureGroup]= "7-10Y", 6,
+			       Dim_TenureGroup[TenureGroup]=  "10-15Y", 7,
+			       Dim_TenureGroup[TenureGroup]=  "Above 15Y", 8
+			       
+			    
+			)
+			
+			```
+		formatString: 0
+		lineageTag: 36c04931-3e3a-4562-ba51-853718de138b
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'New Tenure' = Dim_TenureGroup[TenureGroup]
+		lineageTag: a06da98c-566e-4276-946f-83605be946c6
+		summarizeBy: none
+		sortByColumn: 'Sub Tenure Groups'
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_TenureGroup = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_TenureGroup = Glenmark{[Schema="dbo",Item="Dim_TenureGroup"]}[Data]
+				in
+				    dbo_Dim_TenureGroup
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

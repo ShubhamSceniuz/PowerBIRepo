@@ -1,0 +1,25 @@
+table Dim_Manager_ids
+	lineageTag: b698445c-ccec-4cf1-a1f9-2cc392b38e68
+
+	column ManagerID
+		dataType: string
+		lineageTag: 0ae549d8-0e1f-40f9-9828-4d9001e4d7cd
+		summarizeBy: none
+		sourceColumn: ManagerID
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Manager_ids = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_Manager_ids = Glenmark{[Schema="dbo",Item="Dim_Manager_ids"]}[Data]
+				in
+				    dbo_Dim_Manager_ids
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

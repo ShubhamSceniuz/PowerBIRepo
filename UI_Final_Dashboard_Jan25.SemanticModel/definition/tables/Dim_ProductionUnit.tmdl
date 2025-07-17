@@ -1,0 +1,34 @@
+table Dim_ProductionUnit
+	lineageTag: 00db288c-95e7-4e35-bffc-6653cc8a71f3
+
+	column ProductionUnit_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 3c6ba085-77ae-48f7-b7a5-5561a1c12b4e
+		summarizeBy: none
+		sourceColumn: ProductionUnit_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductionUnit
+		dataType: string
+		lineageTag: 89d9d86f-01cf-47f7-9996-a73ee49ec72a
+		summarizeBy: none
+		sourceColumn: ProductionUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_ProductionUnit = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_ProductionUnit = Glenmark{[Schema="dbo",Item="Dim_ProductionUnit"]}[Data]
+				in
+				    dbo_Dim_ProductionUnit
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

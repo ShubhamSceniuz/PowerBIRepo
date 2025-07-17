@@ -1,0 +1,64 @@
+table Dim_AgeGroup
+	lineageTag: 65eeb20d-3692-43ea-ac9b-e2189bf309c5
+
+	column AgeGroup_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 3f3aa3ab-d547-404a-8db6-bcd1b2690311
+		summarizeBy: none
+		sourceColumn: AgeGroup_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column AgeGroup
+		dataType: string
+		lineageTag: 08128a76-ce9d-4429-a791-660e8a2d65b8
+		summarizeBy: none
+		sourceColumn: AgeGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column AgeGroups = ```
+			
+			SWITCH(
+			    TRUE(),
+			        Dim_AgeGroup[AgeGroup]="Under 25", 1,
+			        Dim_AgeGroup[AgeGroup]="25 - 30", 2,
+			        Dim_AgeGroup[AgeGroup]="30 - 35", 3,
+			        Dim_AgeGroup[AgeGroup]="35 - 40", 4,
+			        Dim_AgeGroup[AgeGroup]="40 - 45", 5,
+			        Dim_AgeGroup[AgeGroup]="45 - 50", 6,
+			        Dim_AgeGroup[AgeGroup]="Above 50", 7
+			
+			    
+			)
+			```
+		formatString: 0
+		lineageTag: 8d97945d-26b6-4ed7-bde4-240ad023d8fb
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'NEW AGE GROUP' = Dim_AgeGroup[AgeGroup]
+		lineageTag: 3e1a2f35-6f2f-4d3c-bc4f-b3d4da1bfc12
+		summarizeBy: none
+		sortByColumn: AgeGroups
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_AgeGroup = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_AgeGroup = Glenmark{[Schema="dbo",Item="Dim_AgeGroup"]}[Data]
+				in
+				    dbo_Dim_AgeGroup
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

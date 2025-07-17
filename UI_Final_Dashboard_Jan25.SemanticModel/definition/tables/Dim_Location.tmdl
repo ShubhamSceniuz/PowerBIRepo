@@ -1,0 +1,40 @@
+table Dim_Location
+	lineageTag: 3838d912-a3dd-4512-a06c-c2449c127d94
+
+	column Location_id
+		dataType: int64
+		formatString: 0
+		lineageTag: d179ee7a-9782-4387-9ef3-a561b1c45150
+		summarizeBy: none
+		sourceColumn: Location_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: 413cbca2-eead-44e8-903c-73b13f0f2ce7
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column Location
+		dataType: string
+		lineageTag: 08b018f8-85fc-458d-8976-9ddbba88ce00
+		summarizeBy: none
+		sourceColumn: Location
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Location = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_Location = Glenmark{[Schema="dbo",Item="Dim_Location"]}[Data]
+				in
+				    dbo_Dim_Location
+
+	annotation PBI_ResultType = Table
+

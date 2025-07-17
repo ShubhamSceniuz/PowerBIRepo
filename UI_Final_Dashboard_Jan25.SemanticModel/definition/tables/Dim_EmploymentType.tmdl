@@ -1,0 +1,32 @@
+table Dim_EmploymentType
+	lineageTag: a9981ff4-ffe8-4c4c-9463-ce95f8b24bec
+
+	column EmploymentType_id
+		dataType: int64
+		formatString: 0
+		lineageTag: d6974462-5a7d-4b83-be22-2dc1e77e36e8
+		summarizeBy: none
+		sourceColumn: EmploymentType_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column EmploymentType
+		dataType: string
+		lineageTag: 86358704-f96b-4d88-af60-90ed20da39c3
+		summarizeBy: none
+		sourceColumn: EmploymentType
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_EmploymentType = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_EmploymentType = Glenmark{[Schema="dbo",Item="Dim_EmploymentType"]}[Data]
+				in
+				    dbo_Dim_EmploymentType
+
+	annotation PBI_ResultType = Table
+

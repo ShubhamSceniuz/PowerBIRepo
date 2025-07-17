@@ -1,0 +1,218 @@
+table Dim_Employee
+	lineageTag: c02d4b2c-69d4-4246-9631-20ba26600805
+
+	column Employee_id
+		dataType: string
+		isHidden
+		lineageTag: ad9e59ee-cf26-43e4-be98-fa915143ac33
+		summarizeBy: none
+		sourceColumn: Employee_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		isHidden
+		lineageTag: bbcce38a-0c5b-4e4b-a4a6-c0ebe0a49cec
+		summarizeBy: none
+		sourceColumn: name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column gender
+		dataType: string
+		lineageTag: 92dd2a40-65e5-4b5d-8652-9694c9bb09db
+		summarizeBy: none
+		sourceColumn: gender
+
+		annotation SummarizationSetBy = Automatic
+
+	column Functions
+		dataType: string
+		lineageTag: a4b0bff0-78ed-48de-976f-523af24a3253
+		summarizeBy: none
+		sourceColumn: Functions
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubFunction
+		dataType: string
+		lineageTag: fc669012-0df2-4658-b9b1-4e14951bc589
+		summarizeBy: none
+		sourceColumn: SubFunction
+
+		annotation SummarizationSetBy = Automatic
+
+	column FunctionTagging
+		dataType: string
+		lineageTag: 234e41f7-96ec-42a9-86f1-c3c12579b90c
+		summarizeBy: none
+		sourceColumn: FunctionTagging
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClubbedFunctionTagging
+		dataType: string
+		lineageTag: 7aeeb17c-31f6-4556-905e-3e027edc6707
+		summarizeBy: none
+		sourceColumn: ClubbedFunctionTagging
+
+		annotation SummarizationSetBy = Automatic
+
+	column BUFunctionLeader
+		dataType: string
+		isHidden
+		lineageTag: d10c17ce-7937-403d-95d0-b44cd8ea95f9
+		summarizeBy: none
+		sourceColumn: BUFunctionLeader
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column EnablingFunctions
+		dataType: string
+		lineageTag: 1b694396-42e1-447b-a81b-fda61cbd12f3
+		summarizeBy: none
+		sourceColumn: EnablingFunctions
+
+		annotation SummarizationSetBy = Automatic
+
+	column KeyRoles
+		dataType: string
+		lineageTag: 1c03c342-3c6a-4211-b85d-18a002ef2c7d
+		summarizeBy: none
+		sourceColumn: KeyRoles
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExitType
+		dataType: string
+		lineageTag: 72ab6550-123f-4116-8865-87c9af030ff2
+		summarizeBy: none
+		sourceColumn: ExitType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExitReason
+		dataType: string
+		lineageTag: 1fcf24f5-927a-4d48-961a-0ea95452c0dc
+		summarizeBy: none
+		sourceColumn: ExitReason
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Masked Employee ID' = ```
+			
+			VAR ManagerID = Dim_Employee[Employee_id]
+			VAR ManagerIDLength = LEN(ManagerID)
+			
+			-- Handle cases where Manager_ID is very short or contains "--"
+			VAR MaskedID = 
+			    IF(
+			        ManagerID, 
+			        IF(
+			            ManagerIDLength > 4, 
+			            LEFT(ManagerID, 1) & REPT("X", ManagerIDLength - 4) & RIGHT(ManagerID, 2),
+			            REPT("X", ManagerIDLength)
+			        )
+			    )
+			
+			RETURN MaskedID
+			
+			```
+		lineageTag: a20b8a4f-44ba-44f8-a1cd-4d05b98c36b1
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Masked BUFunctionLeader' = ```
+			
+			VAR FullName = Dim_Employee[BUFunctionLeader]
+			
+			RETURN 
+			    IF(
+			        ISBLANK(FullName) || FullName = "--", 
+			        FullName, // Keep blank or "--" as is
+			        VAR NameParts = SUBSTITUTE(FullName, ".", "") // Remove dots from titles
+			        VAR Words = SUBSTITUTE(NameParts, " ", "|") // Temporarily replace spaces with "|"
+			        
+			        RETURN 
+			            CONCATENATEX(
+			                ADDCOLUMNS(
+			                    ADDCOLUMNS(
+			                        GENERATESERIES(1, PATHLENGTH(Words)), 
+			                        "Word", PATHITEM(Words, [Value], TEXT)
+			                    ),
+			                    "MaskedWord", 
+			                    IF(
+			                        LEN([Word]) > 2, 
+			                        LEFT([Word], LEN([Word]) - 2) & "**", 
+			                        [Word]
+			                    )
+			                ),
+			                [MaskedWord], 
+			                " "
+			            )
+			    )
+			
+			```
+		lineageTag: a6bd0126-acd1-4884-b946-74c62bc55414
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Masked Employee Name' = ```
+			
+			VAR FullName = Dim_Employee[name]
+			
+			RETURN 
+			    IF(
+			        ISBLANK(FullName) || FullName = "--", 
+			        FullName, // Keep blank or "--" as is
+			        VAR NameParts = SUBSTITUTE(FullName, ".", "") // Remove dots from titles
+			        VAR Words = SUBSTITUTE(NameParts, " ", "|") // Temporarily replace spaces with "|"
+			        
+			        RETURN 
+			            CONCATENATEX(
+			                ADDCOLUMNS(
+			                    ADDCOLUMNS(
+			                        GENERATESERIES(1, PATHLENGTH(Words)), 
+			                        "Word", PATHITEM(Words, [Value], TEXT)
+			                    ),
+			                    "MaskedWord", 
+			                    IF(
+			                        LEN([Word]) > 2, 
+			                        LEFT([Word], LEN([Word]) - 2) & "**", 
+			                        [Word]
+			                    )
+			                ),
+			                [MaskedWord], 
+			                " "
+			            )
+			    )
+			
+			```
+		lineageTag: de115dc2-3cfc-4c67-b0ad-69edf029ca80
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Employee = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Dim_Employee = Glenmark{[Schema="dbo",Item="Dim_Employee"]}[Data]
+				in
+				    dbo_Dim_Employee
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

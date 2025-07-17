@@ -1,0 +1,55 @@
+table 'Parameter 2'
+	lineageTag: 723e383a-8a06-4e95-851d-630a77428d7c
+
+	column 'Parameter 2'
+		lineageTag: fea85d26-0d31-4a42-92a3-5f75f697a2c1
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Parameter 2 Order'
+
+		relatedColumnDetails
+			groupByColumn: 'Parameter 2 Fields'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Parameter 2 Fields'
+		isHidden
+		lineageTag: fe086454-f59c-4449-93e1-c07cc0754943
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Parameter 2 Order'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Parameter 2 Order'
+		isHidden
+		formatString: 0
+		lineageTag: b9d2afd1-9f46-42c3-a445-eda12cf10fa9
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Parameter 2' = calculated
+		mode: import
+		source =
+				{
+				    ("Overall", NAMEOF('Dim_EmploymentType'[EmploymentType]), 0),
+				    ("Gender", NAMEOF('Dim_Employee'[gender]), 1),
+				    ("Age Group", NAMEOF('Dim_AgeGroup'[NEW AGE GROUP]), 2),
+				    ("Tenure Group", NAMEOF('Dim_Subtenure'[Tenure_subgroup]), 3),
+				    ("Function Tagging", NAMEOF('Dim_Employee'[FunctionTagging]), 4),
+				    ("Grade Level Category", NAMEOF('Dim_Level'[New Grade]), 5),
+				    ("Performace Rating", NAMEOF('Dim_Rating'[CurrentYearRating]), 6),
+				    ("BU Function Leader", NAMEOF('Dim_Employee'[BUFunctionLeader]), 7),
+				    ("Country", NAMEOF('Dim_Location'[Country]), 8)
+				}
+
+	annotation PBI_Id = a0dfb322e1ee4c1da00b5ccf3c59863d
+

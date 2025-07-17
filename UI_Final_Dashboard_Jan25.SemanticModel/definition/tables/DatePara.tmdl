@@ -1,0 +1,48 @@
+table DatePara
+	lineageTag: f98a9ae5-a829-40a7-8b8a-8b3022a54ff1
+
+	column DateParameter
+		lineageTag: bdc15adf-d6bf-40b4-a5f5-edb77a29f724
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Parameter Order'
+
+		relatedColumnDetails
+			groupByColumn: 'Parameter Fields'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Parameter Fields'
+		isHidden
+		lineageTag: 6206e396-9739-45db-a0b8-4419ae5147e2
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Parameter Order'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Parameter Order'
+		isHidden
+		formatString: 0
+		lineageTag: da08186a-8f9f-46ec-b6ac-b4123807f090
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DatePara = calculated
+		mode: import
+		source =
+				{
+				    ("Quarter", NAMEOF('DateDimension'[Quarter]), 0),
+				    ("Month on Month ", NAMEOF('DateDimension'[MonthYear]), 1)
+				}
+
+	annotation PBI_Id = a9be044b883d43cea3cab75dcc7c5dee
+

@@ -1,0 +1,2096 @@
+table 'All Measures'
+	lineageTag: 9cee723b-55da-4e5d-ba49-45df96b982cf
+
+	measure 'WFS Cum_Headcount__SH' = ```
+			
+			VAR MaxdateHD = MAX('Dim Calendar'[Date])
+			var hc = 
+			            CALCULATE(
+			               COUNT(Fact_Employee[Employee_ID]),
+			                FILTER(
+			                ALL('Dim Calendar'[Date]),
+			                'Dim Calendar'[Date] <= MaxdateHD) ,
+			                USERELATIONSHIP(Fact_Employee[Date_of_Joining],'Dim Calendar'[Date]
+			                ))
+			RETURN
+			hc
+			```
+		formatString: 0
+		lineageTag: b9095141-ad3b-4ed2-88b8-e7865872559d
+
+	measure 'Prev Attrition' = CALCULATE([Attrition %],SAMEPERIODLASTYEAR(DateDimension[FullDate]))
+		formatString: 0
+		lineageTag: d8d61894-4a62-43a9-b967-7184e35e1562
+
+	measure Active_Headcount = ```
+			
+			VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_date_1])
+			VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			 
+			VAR HC =
+			    CALCULATE(
+			        COUNT(Fact_Employee[Employee_ID]),
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_date_1] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			 
+			RETURN 
+			
+			    IF(
+			        HC= BLANK(),
+			        0,
+			        HC
+			    )
+			
+			
+			
+			```
+		formatString: 0
+		lineageTag: 169f5043-332e-4f33-987f-5ca28aaf11e3
+
+	measure 'New Hires' = ```
+			
+			// Determine the fiscal year start and end based on the selected date
+			VAR SelectedFiscalYear = YEAR(MAX(DateDimension[FullDate]))
+			VAR FY_StartYear = IF(MONTH(MAX(DateDimension[FullDate])) >= 4, SelectedFiscalYear, SelectedFiscalYear - 1)
+			VAR StartDate = DATE(FY_StartYear, 4, 1)
+			VAR EndDate = DATE(FY_StartYear + 1, 3, 31)
+			 
+			// Filter employees who joined within the fiscal year and have snapshots within this range
+			VAR FilteredEmployees =
+			    FILTER(
+			        'Fact_Employee',
+			        'Fact_Employee'[Date_of_Joining] >= StartDate &&
+			        'Fact_Employee'[Date_of_Joining] <= EndDate &&
+			        'Fact_Employee'[snapshot_date_1] <= EndDate
+			    )
+			 
+			// Identify each employee's latest snapshot date within the fiscal year
+			VAR LatestSnapshots =
+			    ADDCOLUMNS(
+			        SUMMARIZE(
+			            FilteredEmployees,
+			            'Fact_Employee'[Employee_ID]
+			        ),
+			        "@LatestSnapshotDate", CALCULATE(MAX('Fact_Employee'[snapshot_date_1]))
+			    )
+			 
+			// Count distinct employees with their latest snapshot date within the fiscal year range
+			RETURN
+			    CALCULATE(
+			        DISTINCTCOUNT('Fact_Employee'[Employee_ID]),
+			        FILTER(
+			            FilteredEmployees,
+			            'Fact_Employee'[snapshot_date_1] =
+			                CALCULATE(
+			                    MAX('Fact_Employee'[snapshot_date_1]),
+			                    ALLEXCEPT('Fact_Employee', 'Fact_Employee'[Employee_ID]),
+			                    'Fact_Employee'[snapshot_date_1] <= EndDate
+			                )
+			        )
+			    )
+			 
+			
+			
+			
+			```
+		formatString: 0
+		lineageTag: 7e2aae89-f3ce-4252-bc8c-2fd3ece6e2e1
+
+	measure Difference_From_Last_Year_Measure_FY = ```
+			
+			VAR MaxDate = MAX('DateDimension'[FullDate])
+			VAR CurrentYear =
+			    IF(MONTH(MaxDate) >= 4, YEAR(MaxDate), YEAR(MaxDate) - 1)
+			
+			VAR PreviousYear1 = CurrentYear - 1
+			
+			-- Calculate the active headcount for the current financial year
+			VAR CurrentYearAC =
+			    CALCULATE(
+			        [Active_Headcount],
+			        'DateDimension'[FullDate] >= DATE(CurrentYear, 4, 1) &&
+			        'DateDimension'[FullDate] <= DATE(CurrentYear + 1, 3, 31)
+			    )
+			
+			-- Calculate the active headcount for the previous financial year
+			VAR LastYearAC =
+			    CALCULATE(
+			        [Active_Headcount],
+			        'DateDimension'[FullDate] >= DATE(PreviousYear1, 4, 1) &&
+			        'DateDimension'[FullDate] <= DATE(PreviousYear1 + 1, 3, 31)
+			    )
+			
+			VAR Diff_lastyear =    CurrentYearAC - LastYearAC
+			
+			VAR diff = IF(Diff_lastyear = BLANK(),0,Diff_lastyear)
+			
+			RETURN
+			"(" & diff & ")"
+			
+			```
+		lineageTag: 285e2845-d2e7-4c71-ad47-1e9ac3e3861b
+
+	measure 'ALL Emp' = ```
+			
+			CALCULATE(
+			    DISTINCTCOUNT(Fact_Employee[Employee_ID]),YEAR(Fact_Employee[Snapshot_Date_2])=YEAR(MAX(Fact_Employee[Snapshot_Date_2]))
+			)
+			    // , 
+			    // USERELATIONSHIP('Bridge 2'[DOJ] , 'Dim Calendar'[Date]))
+			    
+			```
+		formatString: 0
+		lineageTag: c64cf192-b268-4fc8-924a-4311d8b3f1d4
+
+	measure 'New Hire2' = ```
+			
+			VAR CurrentYear = YEAR(MAX(DateDimension[FullDate]))
+			VAR CurrentMonth = MONTH(MAX(DateDimension[FullDate]))
+			 
+			// Determine the Fiscal Year Start Year
+			VAR FY_StartYear =
+			    IF(CurrentMonth >= 4, CurrentYear, CurrentYear - 1)
+			 
+			// Define the Start and End Dates for the Fiscal Year
+			VAR StartDate = DATE(FY_StartYear, 4, 1)
+			VAR EndDate = DATE(FY_StartYear + 1, 3, 31)
+			 
+			RETURN
+			    CALCULATE(
+			        DISTINCTCOUNT('Fact_Employee'[Employee_ID]))
+			```
+		formatString: 0
+		lineageTag: e4c1d7b6-f301-4f7c-8764-25820b8bde6a
+
+	measure NewHireInMonth_YTD =
+			
+			VAR maxmonth = MONTH(MAX('DateDimension'[FullDate]))
+			VAR maxyear = YEAR(MAX('DateDimension'[FullDate]))
+			var empcount =
+			CALCULATE(
+			    //DISTINCTCOUNT(Yearly_Active_Headcount_2022_2023_2024[Employee ID]),
+			    DISTINCTCOUNT('Fact_Employee'[Employee_ID]),
+			    // MONTH(Yearly_Active_Headcount_2022_2023_2024[DOJ]) = maxmonth,
+			    // YEAR(Yearly_Active_Headcount_2022_2023_2024[DOJ]) = maxyear
+			     MONTH(Fact_Employee[Date_of_Joining]) = maxmonth,
+			    YEAR(Fact_Employee[Date_of_Joining]) = maxyear
+			)
+			RETURN
+			"(" &
+			IF(empcount=BLANK(),0,empcount) & ")"
+		lineageTag: 5bb95eb4-91f0-4081-a290-f31afc662c01
+
+	measure Max_Month = ```
+			
+			var maxmonth = FORMAT(MAX(DateDimension[FullDate]),"MMM")
+			 var b ="(" & maxmonth & ")"
+			 RETURN 
+			"New Hires in" & " " & b
+			```
+		lineageTag: a1ec496f-7e6f-4dd1-8bc3-ca00074e6483
+
+	measure 'Separated fm' = ```
+			
+			VAR Countemp = CALCULATE(
+			                    DISTINCTCOUNT(Fact_Employee[Employee_ID]),
+			                    NOT(ISBLANK(Fact_Employee[Date_of_Exit]))
+			                     -- Filter for employees who have exited
+			                )
+			VAR separated = IF(ISBLANK(Countemp), 0, Countemp)
+			
+			RETURN
+			    "(" & FORMAT(separated, "#,0") & ")"
+			
+			
+			```
+		lineageTag: 6e21fd85-9a0f-4eb8-b583-f9927663341d
+
+	measure 'YTD Monthly Avg FY' =
+			
+			VAR Monthly_Avg =  AVERAGEX( VALUES(DateDimension[FiscalMonth]), ([Active_Headcount]))
+			RETURN
+			    CALCULATE(Monthly_Avg,
+			    FILTER( ALL(DateDimension),
+			    'DateDimension'[FiscalMonth] <= MAX(DateDimension[FiscalMonth]) &&
+			    DateDimension[FiscalYear]= MAX(DateDimension[FiscalYear])))
+		lineageTag: 6890e057-3190-47f0-b6cd-095739f9810e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Attrition %' = (DIVIDE([Separated fm for %]*12,CALCULATE([Average Headcount FY]*[count month],REMOVEFILTERS(Dim_Employee[ExitType])),0))
+		formatString: 0%;-0%;0%
+		lineageTag: d6124d12-21be-4881-8c36-42eecc2b5fdf
+
+	measure 'Separated fm for %' = ```
+			
+			VAR Countemp = CALCULATE(
+			                    DISTINCTCOUNT(Fact_Employee[Employee_ID]),
+			                    NOT(ISBLANK(Fact_Employee[Date_of_Exit]))  -- Filter for employees who have exited
+			                )
+			VAR separated = IF(Countemp = BLANK(), 0, Countemp)
+			
+			RETURN
+			    separated
+			
+			```
+		formatString: 0
+		lineageTag: fb423060-3912-43fb-9752-d6c0c6f77bb0
+
+	measure 'YTD Attrition Percentage Previous Year' = ```
+			
+			VAR CurrentDate = MAX('DateDimension'[FullDate])  // Get the current date
+			VAR PreviousFiscalYearStartDate = DATE(YEAR(CurrentDate) - IF(MONTH(CurrentDate) < 4, 2, 1), 4, 1)  // Start date of the previous financial year (April 1st)
+			VAR PreviousFiscalYearEndDate = DATE(YEAR(CurrentDate) - IF(MONTH(CurrentDate) < 4, 1, 0), 3, 31)  // End date of the previous financial year (March 31st)
+			 
+			VAR PreviousYearAttritionCount =
+			    CALCULATE(
+			        [Separated fm for %],  // Assuming this measure calculates the count of exits for the year
+			        FILTER(
+			            ALL('DateDimension'),
+			            'DateDimension'[FullDate] >= PreviousFiscalYearStartDate &&
+			            'DateDimension'[FullDate] <= PreviousFiscalYearEndDate
+			        )
+			    )
+			 
+			VAR PreviousYearAvgHeadcount =
+			    CALCULATE(
+			        [Attrition %],  // Assuming this measure calculates the monthly average headcount for the year
+			        FILTER(
+			            ALL('DateDimension'),
+			            'DateDimension'[FullDate] >= PreviousFiscalYearStartDate &&
+			            'DateDimension'[FullDate] <= PreviousFiscalYearEndDate
+			        )
+			    )
+			 
+			VAR ResultPercentage =
+			    IF(
+			        PreviousYearAvgHeadcount > 0,
+			        DIVIDE(PreviousYearAttritionCount, PreviousYearAvgHeadcount, 0),
+			        BLANK()
+			    )
+			 
+			RETURN
+			    ResultPercentage
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: 72f86a45-ef6b-45bc-9bae-dd930827ef99
+
+	measure Overall_Attrition_Fact = ```
+			
+			// Var Attrition = [INVol_Factor] + [Vol_Factor]
+			VAR seprated1 = CALCULATE(
+			                    DISTINCTCOUNT(Fact_Employee[Date_of_Joining]),
+			                   NOT(ISBLANK(Fact_Employee[Date_of_Exit])))
+			            
+			VAR Attrition1 =DIVIDE(seprated1,[YTD Monthly Avg FY])
+			RETURN
+			//IF(Attrition = BLANK(),0,Attrition) 
+			Attrition1
+			
+			```
+		lineageTag: d9669992-d278-47c9-85a0-99937d1d83f9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '5 year active employee' = ```
+			
+			 CALCULATE(
+			    COUNT(Fact_Employee[Employee_ID]),
+			    Yearly_Active_Headcount_FY[Active Working_Age_year] >= 5
+			) 
+			```
+		lineageTag: 4ae98aaf-753d-45e7-942f-567e505d92ef
+
+	measure 'New Workforce Salary Cr mx_yr' = ```
+			
+			VAR MaxYear = MAX('DateDimension'[FullDate])
+			VAR MinYear = MIN('DateDimension'[FullDate])// Adjust if you have a different column for the year
+			VAR CumCompensation =
+			    CALCULATE(
+			        SUM(Fact_Employee[Total_Comp_in_INR]),
+			        'DateDimension'[FullDate] <= MaxYear &&  'DateDimension'[FullDate]>= MinYear,Fact_Employee[Snapshot_Date_2]=MAX(Fact_Employee[Snapshot_Date_2])
+			    )
+			VAR __cr =
+			    CumCompensation / 10000000
+			 
+			RETURN
+			
+			"₹ " & FORMAT(__cr,"0,0") & " Cr"
+			
+			```
+		lineageTag: 859b126b-3f51-473c-81e8-9fd1910d5c24
+
+	measure 'New Workforce Salary 1' = ```
+			
+			VAR MaxYear = MAX('DateDimension'[FullDate])
+			VAR MinYear = MIN('DateDimension'[FullDate])// Adjust if you have a different column for the year
+			VAR CumCompensation =
+			    CALCULATE(
+			        SUM(Fact_Employee[Total_Comp_in_INR]),
+			        'DateDimension'[FullDate] <= MaxYear &&  'DateDimension'[FullDate]>= MinYear
+			    )
+			VAR __cr =
+			    CumCompensation / 10000000
+			 
+			RETURN
+			
+			__cr
+			
+			```
+		formatString: 0
+		lineageTag: 6a021508-1ce5-42f3-9c24-26e0e0652229
+
+	measure 'New Previous Year Workforce Salary Cr' = ```
+			
+			VAR MaxDate = MAX('DateDimension'[FullDate])
+			VAR CurrentYear = YEAR(MaxDate)
+			VAR PreviousYear1 = 
+			    IF(MONTH(MaxDate) >= 4, CurrentYear - 1, CurrentYear - 2)  -- Adjust for financial year logic
+			
+			-- Define the start and end dates for the previous financial year
+			VAR StartDate = DATE(PreviousYear1, 4, 1)  -- Start from April 1 of the previous year
+			VAR EndDate = DATE(PreviousYear1 + 1, 3, 31)  -- End on March 31 of the current year
+			
+			VAR CumCompensation =
+			    CALCULATE(
+			        SUM(Fact_Employee[Total_Comp_in_INR]),
+			        'DateDimension'[FullDate] >= StartDate && 'DateDimension'[FullDate] <= EndDate
+			    )
+			
+			VAR __cr =
+			    CumCompensation  / 10000000
+			
+			RETURN
+			    IF(
+			        NOT ISBLANK(CumCompensation),
+			        "(₹ " & FORMAT(__cr, "0,0") & " Cr)",
+			        0
+			    )
+			
+			```
+		lineageTag: 4e740b14-13f9-417e-9550-b319d864a163
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'F to M Ratio' = ```
+			
+			VAR __MaxYear = MAX('DateDimension'[FullDate])
+			VAR _ratiofm =
+			CALCULATE(
+			    DIVIDE([male ratio],[Female ratio],0),
+			    'DateDimension'[FullDate] = __MaxYear
+			)
+			RETURN
+			 
+			FORMAT(1, "0") & ":" & FORMAT(_ratiofm, "0.0")
+			```
+		lineageTag: 833f4fbd-64d9-442f-b545-331a96e2622e
+
+	measure 'male ratio' = ```
+			
+			                 CALCULATE(
+			                    COUNT(Fact_Employee[Employee_ID]),
+			                    Dim_Employee[gender] = "Male"
+			                )
+			
+			
+			// VAR __Date = MAX('Dim Calendar'[Date])
+			// VAR CumMaleCount =
+			//     CALCULATE(
+			//         COUNT('Fact Data'[Employee ID]),
+			//         FILTER(
+			//             ALL('Dim Calendar'[Date]),
+			//             'Dim Calendar'[Date] <= __Date
+			//         ),
+			//         'Fact Data'[Gender] = "male"
+			//     )
+			// VAR MaleExitCount =
+			//     CALCULATE(
+			//         COUNT('Fact Data'[Employee ID]),
+			//         'Fact Data'[DOE] <> BLANK(),
+			//         ALL('Dim Calendar'),
+			//         'Fact Data'[DOE] <= __Date,
+			//         USERELATIONSHIP('Fact Data'[DOE], 'Dim Calendar'[Date]),
+			//         'Fact Data'[Gender] = "male"
+			//     )
+			// RETURN
+			//     CumMaleCount - MaleExitCount
+			```
+		formatString: 0
+		lineageTag: 6d4fb064-2c51-4980-8f38-d4bb2f4814f5
+
+	measure 'Female ratio' = ```
+			
+			                CALCULATE(
+			                    DISTINCTCOUNT(Fact_Employee[Employee_ID]),
+			                    Dim_Employee[gender] = "Female"
+			                )
+			
+			 
+			```
+		formatString: 0
+		lineageTag: f2773fc2-04af-4c02-aaab-c23f99bc80c4
+
+	measure 'WFS Average Tenure' =
+			
+			VAR __MaxYear = MAX('DateDimension'[Year])
+			VAR AVG_ten =
+			                CALCULATE(
+			                    AVERAGE(Fact_Employee[Column]),
+			                    'DateDimension'[Year] = __MaxYear
+			                )
+			RETURN
+			IF(AVG_ten = BLANK(),0,AVG_ten)
+		lineageTag: 1d306249-e763-4c22-bb4a-a89a31e1888c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Average_Days_Since_Last_Promotion = ```
+			
+			    AVERAGE(
+			       // 'Yearly_Active_Headcount_2022_2023_2024',
+			        Fact_Employee[Years_Since_Last_Promotion]
+			    )
+			```
+		lineageTag: b9be9bfb-4ca9-4777-9002-e9b75caaf699
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'New Joiners' = ```
+			
+			VAR countnew =
+			CALCULATE(
+			                            DISTINCTCOUNT(Fact_Employee[Employee_ID]) ,
+			                            'Fact_Employee'[Date_of_Joining] <= MAX('DateDimension'[FullDate]) && 
+			                            'Fact_Employee'[Date_of_Joining]>=MIN(DateDimension[FullDate])
+			                        )
+			RETURN
+			IF(
+			    [Active_Headcount] = BLANK(),
+			    0,
+			    IF(
+			        countnew = BLANK(),
+			        0,
+			        countnew
+			    )
+			)
+			```
+		formatString: 0
+		lineageTag: 28ff58cf-72a1-4c05-ba72-d2994e63e4c1
+
+	measure Measure
+		lineageTag: 7db8dc74-4879-4e3c-8548-2d8dbefbcce5
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure HeadcountFirstDay = ```
+			
+			VAR StartDate = MIN('DateDimension'[FullDate])
+			RETURN
+			CALCULATE(
+			    COUNTROWS('Fact_Employee'),
+			    Fact_Employee[Date_of_Joining]<= StartDate,
+			    OR(ISBLANK('Fact_Employee'[Date_of_Exit]),Fact_Employee[Date_of_Exit] >= StartDate),    
+			    Fact_Employee[Snapshot_Date_2] = MIN(Fact_Employee[Snapshot_Date_2]),
+			    ALL(DateDimension[Financial Year])
+			)
+			```
+		formatString: 0
+		lineageTag: 7d953a2f-ec0b-4620-bebf-767be32bdbb0
+
+	measure HeadcountLastDay = ```
+			
+			VAR EndDate1 = MAX('DateDimension'[FullDate]) 
+			RETURN 
+			CALCULATE(     
+			    COUNTROWS('Fact_Employee'),     
+			    Fact_Employee[Date_of_Joining] <= EndDate1,     
+			     OR(ISBLANK('Fact_Employee'[Date_of_Exit]), 'Fact_Employee'[Date_of_Exit] > EndDate1),    Fact_Employee[Snapshot_Date_2] = MAX(Fact_Employee[Snapshot_Date_2]),ALL(DateDimension[Financial Year]))
+			```
+		formatString: 0
+		lineageTag: c92592fe-3441-4ceb-a2f4-36a567a8a816
+
+	measure 'Average Headcount FY' = DIVIDE([HeadcountFirstDay]+[HeadcountLastDay],2)
+		lineageTag: 2bbfe19b-1647-4408-bc6f-b7e259da2454
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Voluntary Attrition FY' = ```
+			
+			 DIVIDE(CALCULATE([Voluntary]*12),CALCULATE([Average Headcount FY]*[count month],REMOVEFILTERS(Dim_Employee[ExitType])) )
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 459b4e26-1a8d-4fba-a09b-e142a0f10097
+
+	measure Voluntary = ```
+			
+			                        CALCULATE(  
+			                            COUNT(Fact_Employee[Employee_ID]), 
+			                           Dim_Employee[ExitType] = "Voluntary",NOT(ISBLANK(Fact_Employee[Date_of_Exit]))
+			                          
+			                            )
+			```
+		formatString: 0
+		lineageTag: 7845136a-c1bb-41fc-aef5-21df57bcaf1f
+
+	measure 'count month' = DISTINCTCOUNT(DateDimension[FiscalMonth])
+		formatString: 0
+		lineageTag: c69955ee-b797-473a-9e46-75d64a6229b9
+
+	measure Tenure = ```
+			
+			VAR SelectedYearText = SELECTEDVALUE('DateDimension'[Financial Year], MAX('DateDimension'[Financial Year]))  
+			
+			VAR SelectedYear =
+			    VALUE(RIGHT(SelectedYearText, 4))  
+			VAR IsFiscalYearSelected = NOT(ISBLANK(SelectedYear))  
+			VAR EndDate =
+			    IF(
+			        IsFiscalYearSelected,
+			        DATE(SelectedYear, 3, 31),
+			        DATE(SelectedYear, 12, 31)  
+			    )
+			RETURN
+			    CALCULATE(
+			        AVERAGEX(
+			            FILTER(
+			                ALL('Fact_Employee'),
+			                'Fact_Employee'[Date_of_Joining] <= EndDate &&
+			                (ISBLANK('Fact_Employee'[Date_of_Exit]) || 'Fact_Employee'[Date_of_Exit] > EndDate) && Fact_Employee[Snapshot_Date_2] = MAX(Fact_Employee[Snapshot_Date_2]) 
+			            ),
+			            YEARFRAC('Fact_Employee'[Date_of_Joining], EndDate, 1)  
+			        )
+			    )
+			```
+		lineageTag: 04d9b58e-82f5-4834-b5a1-50a013ea639d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure CountOfEmployeesWorkingAgeGreaterThan5 = ```
+			
+			VAR SelectedYearText = SELECTEDVALUE('DateDimension'[Financial Year], MAX('DateDimension'[Financial Year]))  
+			VAR SelectedYear = VALUE(RIGHT(SelectedYearText, 4))  
+			VAR IsFiscalYearSelected = NOT(ISBLANK(SelectedYear))  
+			VAR EndDate =
+			    IF(
+			        IsFiscalYearSelected,
+			        DATE(SelectedYear, 3, 31),  -- Fiscal year ends on March 31st
+			        DATE(SelectedYear, 12, 31)  -- Calendar year ends on December 31st (fallback)
+			    )
+			VAR AdjustedEndDate = MIN(EndDate, TODAY())  -- Choose the smaller of EndDate or today
+			RETURN
+			    CALCULATE(
+			        COUNTROWS(
+			            FILTER(
+			                ALL('Fact_Employee'),  
+			                'Fact_Employee'[Date_of_Joining] <= EndDate &&  -- Employee must have joined on or before the selected EndDate
+			                (ISBLANK('Fact_Employee'[Date_of_Exit]) || 'Fact_Employee'[Date_of_Exit] > EndDate) && Fact_Employee[Snapshot_Date_2] = MAX(Fact_Employee[Snapshot_Date_2])    -- Employee is still active as of the EndDate or exited after
+			                && DATEDIFF('Fact_Employee'[Date_of_Joining], AdjustedEndDate, YEAR) >= 5   -- Working age is greater than or equal to 5 years
+			            )
+			        ),
+			        'DateDimension'[Financial Year] = SelectedYearText  -- Apply the filter for the selected financial year
+			    )
+			```
+		formatString: 0
+		lineageTag: c16335e7-95d2-4f6a-bb2b-fed933488ecf
+
+	measure 'Percentage of Employee more the 5 yeaer retention' = ```
+			
+			 
+			VAR EmployeesWithTenureGreaterThanFiveFY =
+			VAR SelectedYearText = SELECTEDVALUE('DateDimension'[Financial Year], MAX('DateDimension'[Financial Year]))  
+			VAR SelectedYear = VALUE(RIGHT(SelectedYearText, 4))  
+			VAR IsFiscalYearSelected = NOT(ISBLANK(SelectedYear))  
+			VAR EndDate =
+			    IF(
+			        IsFiscalYearSelected,
+			        DATE(SelectedYear, 3, 31),
+			        DATE(SelectedYear, 12, 31)  
+			    )
+			VAR AdjustedEndDate = MIN(EndDate, TODAY())
+			RETURN
+			    CALCULATE(
+			        COUNTROWS(
+			            FILTER(
+			                ALL('Fact_Employee'),  
+			                'Fact_Employee'[Date_of_Joining] <= EndDate &&
+			                (ISBLANK('Fact_Employee'[Date_of_Exit]) || 'Fact_Employee'[Date_of_Exit] > EndDate) &&  
+			                DATEDIFF('Fact_Employee'[Date_of_Joining], AdjustedEndDate, YEAR) >= 5
+			            )
+			        ),
+			        'DateDimension'[Financial Year] = SelectedYearText  
+			    )
+			RETURN
+			 
+			DIVIDE(EmployeesWithTenureGreaterThanFiveFY,[Active_Headcount],0)
+			
+			```
+		lineageTag: 24052232-8d88-4371-a81d-f4ff03ffe2f2
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Working Age In Years' = ```
+			
+			VAR MinDOJ = CALCULATE(MIN('Fact_Employee'[Date_of_Joining]), ALL('DateDimension'))
+			VAR MaxDate = MAX('DateDimension'[FullDate])  
+			VAR DOJ = MinDOJ
+			VAR DOE = CALCULATE(SELECTEDVALUE('Fact_Employee'[Date_of_Exit]), REMOVEFILTERS('DateDimension')) -- Remove Calendar filters for DOE
+			RETURN
+			    IF(
+			        DOJ <= MaxDate,
+			        IF(
+			            ISBLANK(DOE) || DOE > MaxDate,  
+			            DATEDIFF(DOJ, MaxDate, DAY) / 365.25,
+			            DATEDIFF(DOJ, DOE, DAY) / 365.25
+			        ),
+			        BLANK()
+			    )
+			```
+		lineageTag: d9ea9d4f-5e52-44e2-a27a-d52e08e28ec9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Tenure_Filter_Measure = ```
+			
+			SWITCH(
+			    TRUE(),
+			    SELECTEDVALUE('Fact_Employee'[Tenure]) = "High Tenure" && 'All Measures'[Working Age In Years]> 5, "High Tenure",
+			    SELECTEDVALUE('Fact_Employee'[Tenure]) = "Mid Tenure" && 'All Measures'[Working Age In Years]> 1 && 'All Measures'[Working Age In Years]<= 5, "Mid Tenure",
+			    SELECTEDVALUE('Fact_Employee'[Tenure]) = "Early Tenure" && 'All Measures'[Working Age In Years]<= 1, "Early Tenure",
+			    0
+			)
+			 
+			```
+		lineageTag: afc48214-5c04-4dd5-bafa-e24baf158cb3
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'IC Headcount' = ```
+			
+			// VAR team_filtered = ISFILTERED(Manager_Span[Manager_Span_Distribution])
+			
+			// VAR results = 
+			//     IF(
+			//         team_filtered,
+			//         SUM(Manager_Span[Team_Span]), 
+			//         [Active_Headcount] - [Manager count]
+			//     )
+			
+			// RETURN results
+			
+			VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			 
+			VAR IC =
+			    CALCULATE(
+			        DISTINCTCOUNT(Fact_Employee[Employee_id]),
+			        Fact_Employee[Manager_IC_Tagging]="IC",
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_Date_2] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			 
+			RETURN IC
+			
+			// VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_Date])
+			// VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			// VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			
+			// RETURN 
+			//     SUMMARIZE(
+			//         FILTER(
+			//             Fact_Employee,
+			//             Fact_Employee[Date_of_Joining] <= Current_Month_DOJ &&
+			//             Fact_Employee[Snapshot_Date] = Current_Month_Snapshot &&
+			//             (Fact_Employee[Date_of_Exit] > Current_Month_DOE || ISBLANK(Fact_Employee[Date_of_Exit]))
+			//         ),
+			//         Fact_Employee[Team_Span], 
+			//         "IC_Employee_Count", DISTINCTCOUNT(Dim_Employee[Employee_id])
+			//     )
+			
+			
+			```
+		formatString: 0
+		lineageTag: b2d2aae5-1e5c-4a6e-8f9b-2ebf38998fd6
+
+	measure 'Manager count' = ```
+			
+			VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			 
+			VAR manager =
+			    CALCULATE(
+			        COUNT(Fact_Employee[Employee_ID]),
+			        Fact_Employee[Manager_IC_Tagging]="Manager",
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_Date_2] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			    
+			RETURN manager
+			```
+		formatString: 0
+		lineageTag: 95dd6346-ccb1-4363-a9dc-b1181bc777b4
+
+	measure Involuntary = ```
+			
+			                        CALCULATE(  
+			                            COUNT(Fact_Employee[Employee_ID]), 
+			                           Dim_Employee[ExitType] = "Involuntary",NOT(ISBLANK(Fact_Employee[Date_of_Exit]))
+			                          
+			                            )
+			```
+		formatString: 0
+		lineageTag: df22e94b-206e-4b68-9d66-2cff870c2ccc
+
+	measure 'Inoluntary Attrition FY' = ```
+			
+			 DIVIDE(CALCULATE([Involuntary]*12),CALCULATE([Average Headcount FY]*[count month],REMOVEFILTERS(Dim_Employee[ExitType])
+			 ))
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: b126a9de-d461-425c-a449-f34262bbdd67
+
+	measure Leadership_KPI = ```
+			
+			 
+			VAR __leadership =          CALCULATE(
+			                              [Voluntary],
+			
+			                              Fact_Employee[Leadership]="Leadership"                
+			                                                           )
+			 
+			VAR __leader =
+			                        DIVIDE(
+			                        __leadership*12 ,
+			                        [Average Headcount]
+			                        )
+			RETURN
+			__leader
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 0c4c8ca3-3669-41db-b58d-75c537915bc1
+
+	measure 'High Performer' = ```
+			
+			 
+			VAR __leadership =          CALCULATE(
+			                              [Voluntary],
+			                              Fact_Employee[High_Performer]="High Performer"                     
+			                                                           )
+			 
+			VAR __leader =
+			                        DIVIDE(
+			                        __leadership*12,
+			                        [Average Headcount]
+			                        )
+			RETURN
+			__leader
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: d5a507da-385e-4172-a035-b56c25b8bf60
+
+	measure 'Early Tenure Att %' = ```
+			
+			 
+			VAR __leadership =          CALCULATE(
+			                              [Voluntary],
+			
+			                              Fact_Employee[Early_Tenure]="Early Tenure"                     
+			                                                           )
+			 
+			VAR __leader =
+			                        DIVIDE(
+			                        __leadership*12 ,
+			                        [Average Headcount]
+			                        )
+			RETURN
+			__leader
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 9c8f113a-3ec4-4c18-a1e2-83b0c00d85eb
+
+	measure 'High Tenure Att %' = ```
+			
+			 
+			VAR __leadership =          CALCULATE(
+			                              [Voluntary],
+			                              Fact_Employee[High_Tenure]="High Tenure"                     
+			                                                           )
+			 
+			VAR __leader =
+			                        DIVIDE(
+			                        __leadership*12 ,
+			                        [Average Headcount]
+			                        )
+			RETURN
+			__leader
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: aff7096f-a4aa-4948-bd37-d4c28e801697
+
+	measure 'Female Attrition' = ```
+			
+			 
+			VAR __leadership =          CALCULATE(
+			                              [Voluntary],
+			                              Fact_Employee[Female]="Female"                     
+			                                                           )
+			 
+			VAR __leader =
+			                        DIVIDE(
+			                        __leadership*12 ,
+			                        [Average Headcount]
+			                        )
+			RETURN
+			__leader
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 4386639f-0b13-4664-bc3b-8c6641e38251
+
+	measure 'Voluntary Attrition % pre' = ```
+			
+			
+			VAR MaxDate = MAX('DateDimension'[FullDate])
+			VAR CurrentYear = YEAR(MaxDate)
+			VAR PreviousYear1 =
+			    IF(MONTH(MaxDate) >= 4, CurrentYear - 1, CurrentYear - 2)  -- Adjust for financial year logic
+			 
+			-- Define the start and end dates for the previous financial year
+			VAR StartDate = DATE(PreviousYear1, 4, 1)  -- Start from April 1 of the previous year
+			VAR EndDate = DATE(PreviousYear1 + 1, 3, 31)  -- End on March 31 of the current year
+			 
+			VAR VOL_pre =
+			    CALCULATE(
+			        [FilteredMeasure],
+			        'DateDimension'[FullDate] >= StartDate && 'DateDimension'[FullDate] <= EndDate
+			    )
+			VAR __VOL = IF(VOL_pre = BLANK(),0,VOL_pre) 
+			RETURN
+			__VOL
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: 503ca250-706e-4e2a-ab25-5d0c2d88f871
+
+	measure 'Involuntary Attrition% pre' = ```
+			
+			VAR MaxDate = MAX('DateDimension'[FullDate])
+			VAR CurrentYear = YEAR(MaxDate)
+			VAR PreviousYear1 =
+			    IF(MONTH(MaxDate) >= 4, CurrentYear - 1, CurrentYear - 2)  -- Adjust for financial year logic
+			 
+			-- Define the start and end dates for the previous financial year
+			VAR StartDate = DATE(PreviousYear1, 4, 1)  -- Start from April 1 of the previous year
+			VAR EndDate = DATE(PreviousYear1 + 1, 3, 31)  -- End on March 31 of the current year
+			 
+			VAR INVOL_pre =
+			    CALCULATE(
+			        [FilteredMeasure  Inv],
+			        'DateDimension'[FullDate] >= StartDate && 'DateDimension'[FullDate] <= EndDate
+			    )
+			VAR __INVOL = IF(INVOL_pre = BLANK(),0,INVOL_pre) 
+			RETURN
+			__INVOL
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: 98c9d023-09d4-41c4-8f49-f342a83bbe11
+
+	measure 'Leadership_KPI Pre' = ```
+			
+			
+			VAR MaxDate = MAX('DateDimension'[FullDate])
+			VAR CurrentYear = YEAR(MaxDate)
+			VAR PreviousYear1 =
+			    IF(MONTH(MaxDate) >= 4, CurrentYear - 1, CurrentYear - 2)  -- Adjust for financial year logic
+			 
+			-- Define the start and end dates for the previous financial year
+			VAR StartDate = DATE(PreviousYear1, 4, 1)  -- Start from April 1 of the previous year
+			VAR EndDate = DATE(PreviousYear1 + 1, 3, 31)  -- End on March 31 of the current year
+			 
+			VAR L_VOL_pre =
+			    CALCULATE(
+			        [FilteredMeasure Leadership],
+			        'DateDimension'[FullDate] >= StartDate && 'DateDimension'[FullDate] <= EndDate
+			    )
+			VAR L__VOL = IF(L_VOL_pre = BLANK(),0,L_VOL_pre) 
+			RETURN
+			L__VOL
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: eee009f2-008e-4497-93de-d74ed42aaae2
+
+	measure 'High_performer pre' = ```
+			
+			
+			VAR MaxDate = MAX('DateDimension'[FullDate])
+			VAR CurrentYear = YEAR(MaxDate)
+			VAR PreviousYear1 =
+			    IF(MONTH(MaxDate) >= 4, CurrentYear - 1, CurrentYear - 2)  -- Adjust for financial year logic
+			 
+			-- Define the start and end dates for the previous financial year
+			VAR StartDate = DATE(PreviousYear1, 4, 1)  -- Start from April 1 of the previous year
+			VAR EndDate = DATE(PreviousYear1 + 1, 3, 31)  -- End on March 31 of the current year
+			 
+			VAR HP_VOL_pre =
+			    CALCULATE(
+			        [FilteredMeasure High Performer],
+			        'DateDimension'[FullDate] >= StartDate && 'DateDimension'[FullDate] <= EndDate
+			    )
+			VAR HP__VOL = IF(HP_VOL_pre = BLANK(),0,HP_VOL_pre) 
+			RETURN
+			HP__VOL
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 05b3600c-5aed-4ee4-ae33-f1510ad155d5
+
+	measure 'Early_Tenure pre' = ```
+			
+			
+			VAR MaxDate = MAX('DateDimension'[FullDate])
+			VAR CurrentYear = YEAR(MaxDate)
+			VAR PreviousYear1 =
+			    IF(MONTH(MaxDate) >= 4, CurrentYear - 1, CurrentYear - 2)  -- Adjust for financial year logic
+			 
+			-- Define the start and end dates for the previous financial year
+			VAR StartDate = DATE(PreviousYear1, 4, 1)  -- Start from April 1 of the previous year
+			VAR EndDate = DATE(PreviousYear1 + 1, 3, 31)  -- End on March 31 of the current year
+			 
+			VAR HP_VOL_pre =
+			    CALCULATE(
+			        [FilteredMeasure Early Tenure],
+			        'DateDimension'[FullDate] >= StartDate && 'DateDimension'[FullDate] <= EndDate
+			    )
+			VAR HP__VOL = IF(HP_VOL_pre = BLANK(),0,HP_VOL_pre) 
+			RETURN
+			HP__VOL
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 464a86c3-1f3e-4716-b297-670a028bafa9
+
+	measure 'High_tenure Attrition pre' = ```
+			
+			
+			VAR MaxDate = MAX('DateDimension'[FullDate])
+			VAR CurrentYear = YEAR(MaxDate)
+			VAR PreviousYear1 =
+			    IF(MONTH(MaxDate) >= 4, CurrentYear - 1, CurrentYear - 2)  -- Adjust for financial year logic
+			 
+			-- Define the start and end dates for the previous financial year
+			VAR StartDate = DATE(PreviousYear1, 4, 1)  -- Start from April 1 of the previous year
+			VAR EndDate = DATE(PreviousYear1 + 1, 3, 31)  -- End on March 31 of the current year
+			 
+			VAR HT_VOL_pre =
+			    CALCULATE(
+			        [FilteredMeasure High Tenure],
+			        'DateDimension'[FullDate] >= StartDate && 'DateDimension'[FullDate] <= EndDate
+			    )
+			VAR HT__VOL = IF(HT_VOL_pre = BLANK(),0,HT_VOL_pre) 
+			RETURN
+			HT__VOL
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 388a5ec8-13a7-4ed9-8545-cb3e843cf2da
+
+	measure 'Female_attrition pre' = ```
+			
+			
+			VAR MaxDate = MAX('DateDimension'[FullDate])
+			VAR CurrentYear = YEAR(MaxDate)
+			VAR PreviousYear1 =
+			    IF(MONTH(MaxDate) >= 4, CurrentYear - 1, CurrentYear - 2)  -- Adjust for financial year logic
+			 
+			-- Define the start and end dates for the previous financial year
+			VAR StartDate = DATE(PreviousYear1, 4, 1)  -- Start from April 1 of the previous year
+			VAR EndDate = DATE(PreviousYear1 + 1, 3, 31)  -- End on March 31 of the current year
+			 
+			VAR HT_VOL_pre =
+			    CALCULATE(
+			       [FilteredMeasure Female],
+			        'DateDimension'[FullDate] >= StartDate && 'DateDimension'[FullDate] <= EndDate
+			    )
+			VAR HT__VOL = IF(HT_VOL_pre = BLANK(),0,HT_VOL_pre) 
+			RETURN
+			HT__VOL
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 4c8b2d39-de8d-4e28-94a3-17112868114f
+
+	measure 'Overall Attrition' = [Separated fm for %]/[Average Headcount FY]
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 1977e82d-87bb-4794-808b-8f27dd33fa47
+
+	measure 'EXIT REASON' = ```
+			
+			   VAR Countemp =[Separated fm for %]
+			               
+			 var Seprated = CALCULATE([Separated fm for %],ALL(Dim_Employee[ExitReason]),
+			                          ALL(Dim_EmploymentType),
+			                          ALL(Dim_Employee[gender]),
+			                          ALL(Fact_Employee[Tenure_subgroup]),
+			                          ALL(Dim_AgeGroup),
+			                          ALL(Dim_Employee[FunctionTagging]),
+			                          ALL(Fact_Employee[BU_Function_Leader]),
+			                          ALL(Dim_ProductionUnit[ProductionUnit]),
+			                          
+			                         
+			                          ALL(Dim_Level),
+			                          ALL(Dim_Rating),
+			                          ALL(Dim_Location))
+			RETURN
+			DIVIDE(Countemp,Seprated)
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 140fabb4-aa22-4c0f-92b3-dfcec1acf1a3
+
+	measure 'NVoluntary Attrition FY' = ```
+			
+			 DIVIDE(CALCULATE([Voluntary]),[Average Headcount FY]*[count month],0
+			 )
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 655ca9c9-f8a3-4edf-a79a-7361c46972bc
+
+	measure 'Measure 2'
+		lineageTag: 9d5b9bfb-a8a7-4290-b344-71f2867d5454
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'Manager Distribution' = ```
+			
+			
+			
+			VAR total_team = 
+			    CALCULATE(
+			        [Manager count],
+			        NOT(ISBLANK(Fact_Employee[Manager_ID])),
+			        ALL(Fact_Employee[Manager_Span_Distribution])
+			    )
+			
+			RETURN 
+			    DIVIDE([Manager count],total_team)
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: 505efb75-c7b1-4edd-89a1-a3c7f4bfeadc
+
+	measure '5 Year Retention' = ```
+			IF(DIVIDE([Retention 5], [Active_Headcount], 0) = 0, 0, DIVIDE([Retention 5], [Active_Headcount], 0))
+			
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: 748cd443-6b76-44e4-bbbc-0fc52cb8bdee
+
+	measure 'Measure 3'
+		lineageTag: ab0cae25-4f13-4901-91fc-7b4aad6cf46a
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'Female to Male Ratio FY' = ```
+			
+			VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			 
+			VAR Male =
+			    CALCULATE(
+			        DISTINCTCOUNT(Fact_Employee[Employee_ID]),
+			        Dim_Employee[gender] ="Male",
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_Date_2] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			
+			VAR Female =
+			    CALCULATE(
+			        DISTINCTCOUNT(Fact_Employee[Employee_ID]),
+			        Dim_Employee[gender] ="Female",
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_Date_2] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			 
+			RETURN 
+			FORMAT(1, "0") & ":" & FORMAT(DIVIDE(Male,Female,0), "0.0")
+			```
+		lineageTag: 41bde781-0922-42c9-bd48-dda74fe3bbbb
+
+	measure 'Measure 4'
+		lineageTag: d64e1336-e98b-47ab-914d-63c86fe69d55
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure Ic_cnt = [Active_Headcount]-[Manager count]
+		formatString: 0
+		lineageTag: 2aedd06e-1c9d-428f-a268-3b04d459c4d9
+
+	measure 'Measure 5'
+		lineageTag: afad5b02-a27f-49e7-b92e-f64858ff2334
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'Number of Employees under Managers max month' = ```
+			
+			VAR __SelectedMaxMonth = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR __TeamSpanSelected = ISFILTERED(Fact_Employee[Team_Span])
+			
+			var fnic =
+			IF(
+			    __TeamSpanSelected, 
+			    SUM(Fact_Employee[Team_Span]), 
+			    CALCULATE(
+			        [Active_Headcount]-[Manager count]
+			      //  FILTER('Dim Calendar', 'Dim Calendar'[Year] = __SelectedMaxMonth)
+			    )
+			)
+			
+			RETURN
+			ABS(fnic)
+			```
+		lineageTag: 4c103bd0-22ae-472c-a54a-596c6f97bff9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure HighRiskEmp = ```
+			
+			CALCULATE(
+			    [Active_Headcount],
+			    'risk_df'[Risk Category]="High"
+			)
+			
+			```
+		formatString: 0
+		lineageTag: f9e0ecd4-3487-46b9-a0ed-8042201fbd05
+
+	measure HighRiskEmpSubcard = FORMAT( DIVIDE([HighRiskEmp], [Active_Headcount]) * 100, "0.00") & "%"
+		lineageTag: 15b60cb0-c365-4abb-9079-d70e432ffd06
+
+	measure womenrisk =
+			
+			VAR risk = CALCULATE(
+			            [Active_Headcount],
+			            KEEPFILTERS('Dim_Employee'[Gender] = "Female"),  -- Allow slicer to filter gender
+			            'risk_df'[Risk Category] = "High"  -- Filter for high risk
+			                    )
+			RETURN
+			IF(ISBLANK(risk), 0, risk)
+		formatString: 0
+		lineageTag: e40b8c97-aea6-4b72-a652-aa479af5c3b7
+
+	measure womenrisksubcard =
+			
+			
+			var womenheadcount=
+			CALCULATE([Active_Headcount],'Dim_Employee'[Gender]="Female")
+			
+			return format(divide([womenrisk],womenheadcount)*100,"0.00") & "%"
+		lineageTag: 05bffeea-71a4-4730-9e09-e1b47a894e4a
+
+	measure Hightenurerisk = ```
+			
+			VAR highTenureCount = CALCULATE(
+			    [Active_Headcount],
+			    'risk_df'[Risk Category] = "High",  -- Filter for high risk
+			    KEEPFILTERS('Fact_Employee'[High_Tenure] = "High Tenure")  -- Allow slicer to filter tenure
+			)
+			 
+			RETURN IF(ISBLANK(highTenureCount), 0, highTenureCount)
+			```
+		formatString: 0
+		lineageTag: 593d0e7c-e39d-43e4-814f-168b10872f65
+
+	measure hightenuresubcard = ```
+			
+			VAR hightenureheadcount = CALCULATE(
+			    [Active_Headcount],
+			    'Fact_Employee'[High_Tenure] = "High Tenure"
+			)
+			 
+			VAR riskCount = [Hightenurerisk]
+			 
+			RETURN IF(
+			    hightenureheadcount = 0,
+			    "0.00%",  -- Return 0.00% if the headcount is zero
+			    FORMAT(DIVIDE(riskCount, hightenureheadcount) * 100, "0.00") & "%"  -- Otherwise, calculate and format
+			)
+			```
+		lineageTag: c38561f9-295c-451b-888b-c5b8fdd88109
+
+	measure earlytenurerisk = ```
+			
+			VAR earlyTenureCount =
+			    CALCULATE(
+			        [Active_Headcount],
+			        KEEPFILTERS('risk_df'[Risk Category] = "High"),  -- Keep filters for high risk
+			        KEEPFILTERS('Fact_Employee'[Early_Tenure] = "Early Tenure")  -- Keep filters for early tenure
+			    )
+			 
+			RETURN IF(ISBLANK(earlyTenureCount), 0, earlyTenureCount)
+			```
+		formatString: 0
+		lineageTag: cc6de5f7-0f94-4320-a969-b46e8bef047c
+
+	measure earlytenuresubcard =
+			
+			
+			var earlyheadcount = calculate([Active_Headcount],'Fact_Employee'[Early_Tenure]="Early Tenure")
+			
+			return format(divide([earlytenurerisk],earlyheadcount)*100,"0.00") & "%"
+		lineageTag: aa863ec5-8e63-4667-aae6-f5115ce48ac8
+
+	measure High_Performer_Risk_Count = ```
+			
+			VAR HighPerformerRatings = {"A", "A+", "5", "4"}
+			VAR highPerformerCount =
+			    CALCULATE(
+			        [Active_Headcount],
+			        KEEPFILTERS(Dim_Rating[CurrentYearRating] IN HighPerformerRatings),  -- Keep filters for high performer ratings
+			        'risk_df'[Risk Category] = "High"
+			    )
+			 
+			RETURN IF(ISBLANK(highPerformerCount), 0, highPerformerCount)
+			```
+		formatString: 0
+		lineageTag: dbd28632-1797-432d-94a8-797611f43182
+
+	measure PerformerHeadcount =
+			
+			VAR HighPerformerRatings = {"A", "A+", "5", "4"}
+			 return  CALCULATE(
+			        [Active_Headcount],
+			        'Dim_Rating'[CurrentYearRating] in HighPerformerRatings
+			    )
+		formatString: 0
+		lineageTag: 0ca0bd39-32c1-4a52-8c5f-bb2b54110551
+
+	measure PerformerSubcard =
+			
+			format(divide([High_Performer_Risk_Count],[PerformerHeadcount])*100,"0.00") & "%"
+		lineageTag: 71b24eed-b99f-4219-a966-e90d17d7efa9
+
+	measure Leadership_At_Risk_Count = ```
+			
+			var leader= CALCULATE(
+			    [Active_Headcount],
+			    KEEPFILTERS('Dim_Level'[GradeLevelCategory] IN {"CM1 and CM1A", "CM2 & Above"}),  -- Allow slicer to filter grade levels
+			    'risk_df'[Risk Category] = "High"  -- Filter for high risk
+			)
+			 
+			return IF(ISBLANK(leader), 0, leader)
+			```
+		formatString: 0
+		lineageTag: bae109ad-48bd-4ea0-b587-d5145c1274e4
+
+	measure LeadershipSubcard = ```
+			
+			var leaderHeadcount=
+			    CALCULATE(
+			        [Active_Headcount], 
+			        'Dim_Level'[GradeLevelCategory] = "CM1 and CM1A" || 
+			        'Dim_Level'[GradeLevelCategory] = "CM2 & Above"  -- Filter for specific grade levels
+			    )
+			return format(divide([Leadership_At_Risk_Count],leaderHeadcount)*100,"0.00") & "%"
+			
+			```
+		lineageTag: 87544ef5-2cde-4c61-9437-c6bdfbe10396
+
+	measure 'Retention 5' = ```
+			
+			VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			 
+			VAR HC =
+			    CALCULATE(
+			        COUNT(Fact_Employee[Employee_ID]),
+			        Fact_Employee[High_Tenure]="High Tenure",
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_Date_2] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			 
+			RETURN HC
+			```
+		formatString: 0
+		lineageTag: 9ced8a71-f33e-4f55-bc43-9bc06b4f7e92
+
+	measure 'Manager to IC Ratio'
+		lineageTag: ffde99d1-d693-4fb3-a53f-06e711cbb55b
+
+	measure 'Manager to IC Ratio FY' = ```
+			
+			VAR a = DIVIDE([Employee_Count_or_Team_Size], [FilteredMeasure Manager])
+			RETURN
+			FORMAT(1, "0") & ":" & FORMAT(a, "0")
+			
+			```
+		lineageTag: f7c65e87-304c-4f7d-a9f5-be0b9ee43847
+
+	measure 'Avg team span' = ```
+			
+			VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			 
+			VAR HC =
+			    CALCULATE(
+			        AVERAGE(Fact_Employee[Team_Span]),
+			        Fact_Employee[Manager_IC_Tagging]="Manager",
+			        DISTINCT(Fact_Employee[Employee_ID]),
+			        Fact_Employee[Team_Span]<12677,
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_Date_2] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			 
+			RETURN HC
+			```
+		lineageTag: 93957e1a-6eee-48de-a628-0b4693292191
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Measure 6'
+		lineageTag: 433df769-be7f-4207-9a19-c56cbf766015
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'WorkForce salary' = ```
+			
+			VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			 
+			VAR HC =
+			    CALCULATE(
+			        SUM(Fact_Employee[Total_Comp_in_INR]),
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_Date_2] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			
+			VAR __cr =
+			    HC / 10000000
+			 
+			RETURN
+			
+			"₹ " & FORMAT(__cr,"0,0") & " Cr"
+			```
+		lineageTag: 2b3d001f-ce78-4f57-8def-6576f14a8be9
+
+	measure 'Measure 7'
+		lineageTag: 89949032-85b1-4654-8a1a-b0677e56027a
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'EXIT REASON FY' = ```
+			
+			   VAR Countemp =[Separated fm for %]
+			               
+			 var Seprated = CALCULATE([Separated fm for %],ALL(Dim_Employee[ExitReason]),
+			                          ALL(Dim_EmploymentType),
+			                          ALL(Dim_Employee),
+			                          ALL(Dim_AgeGroup),
+			                          ALL(Dim_TenureGroup),
+			                          ALL(Dim_Level),
+			                          ALL(Dim_Rating),
+			                          ALL(Dim_Location))
+			RETURN
+			DIVIDE(Countemp,Seprated)
+			 
+			```
+		lineageTag: b80a2e71-d57e-420f-916f-231894ee503b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Attrition % Normal' = DIVIDE([Separated fm for %],[Average Headcount FY]*[count month])
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: a1ad5694-d0ad-40df-b33f-d63b74b0c86f
+
+	measure 'Voluntary Attrition FY Normal' = ```
+			
+			 DIVIDE(CALCULATE([Voluntary]),[Average Headcount FY]*[count month])
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 45b4478c-f570-4ca7-9724-683ccf87573d
+
+	measure 'Inoluntary Attrition FY  Normal' = ```
+			
+			 DIVIDE(CALCULATE([Involuntary]),[Average Headcount FY]*[count month]
+			 )
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 60f487e0-1987-4345-b0af-241786ac870a
+
+	measure 'Last Year Promotion Rate' = ```
+			
+			var Maxyear = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR promotion =
+			                            CALCULATE(
+			                                 DISTINCTCOUNT(Fact_Employee[Employee_ID]),
+			                                'Fact_Employee'[Date_of_Last_Promotion]<> BLANK(),
+			                                 YEAR(Fact_Employee[Date_of_Last_Promotion]) = Maxyear
+			)
+			RETURN
+			 
+			DIVIDE(promotion,[Active_Headcount])
+			```
+		lineageTag: 6ad9c2ae-ac06-4403-8fa3-ac3e697bc38e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'WorkForce salary India' = ```
+			
+			VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			 
+			VAR HC =
+			    CALCULATE(
+			        SUM(Fact_Employee[Total_Comp_in_INR]),
+			        Dim_Location[Country]="India",
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_Date_2] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			
+			VAR __cr =
+			    HC / 10000000
+			 
+			RETURN
+			
+			"₹ " & FORMAT(__cr,"0,0") & " Cr"
+			```
+		lineageTag: 527d5d23-932f-48bc-9862-8db3e32cbbca
+
+	measure 'Measure 8'
+		lineageTag: dad7b5bd-2df9-4d13-97c7-0333a9972d37
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'Cost per employee' = ```
+			
+			VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			 
+			VAR HC =
+			    CALCULATE(
+			        SUM(Fact_Employee[Total_Comp_in_INR]),
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_Date_2] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			var a =
+			DIVIDE(HC,[Active_Headcount])/100000
+			RETURN
+			a
+			```
+		lineageTag: 0603b869-b149-4a72-8195-47c5f77abb5c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Active_Headcount India' = ```
+			
+			VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			 
+			VAR HC =
+			    CALCULATE(
+			        COUNT(Fact_Employee[Employee_ID]),
+			        Dim_Location[Country]="India",
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_Date_2] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			 
+			RETURN HC
+			
+			```
+		formatString: 0
+		lineageTag: c03bfb1e-5620-47f1-bbd7-04e90e4ce48f
+
+	measure 'Last Year Promotion Rate FY' = ```
+			
+			VAR promotion =
+			                            CALCULATE(
+			                                 DISTINCTCOUNT('Fact_Employee'[Employee_ID]),
+			                                Fact_Employee[Date_of_Last_Promotion]<> BLANK(),
+			                                YEAR(Fact_Employee[Date_of_Last_Promotion]) = 2024
+			)
+			RETURN
+			DIVIDE(promotion,[Active_Headcount])
+			 
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: ad983af3-bb0e-4908-bae7-8459013a9fb0
+
+	measure 'Measure 9'
+		lineageTag: 78fe3ec1-9805-4498-b8e9-fa26db7c8e5e
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'Female Percent' = ```
+			
+			VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			
+			-- Calculate the count of female employees
+			VAR Female = 
+			    CALCULATE(
+			        DISTINCTCOUNT(Fact_Employee[Employee_ID]),
+			        Dim_Employee[gender] = "Female",
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_Date_2] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			
+			-- Calculate the final result
+			VAR Result = 
+			    IF(
+			        SELECTEDVALUE(Dim_Employee[gender]) = "Male", 
+			        0, 
+			        DIVIDE(Female, [Active_Headcount], 0)
+			    )
+			
+			RETURN 
+			    Result
+			
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: c05b9a8a-ac2f-450c-9bd6-0118958ad9d1
+
+	measure 'Measure 10'
+		lineageTag: 4f84f7fb-9825-4ac0-ac90-8f6089d995eb
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'Max_Month FY' = ```
+			
+			var maxmonth = FORMAT(MAX('Fact_Employee'[Snapshot_Date_2]),"MMM")
+			 var b ="(" & maxmonth & ")"
+			 RETURN 
+			"New Hires in" & " " & b
+			```
+		lineageTag: 9cbf5cf3-d019-427f-abb9-fb83185450ef
+
+	measure 'Number of Employees under Managers max month FY' = ```
+			
+			VAR __SelectedMaxMonth = MAX('Fact_Employee'[Snapshot_Date_2])
+			VAR __TeamSpanSelected = ISFILTERED('Fact_Employee'[Manager_Span_Distribution])
+			
+			VAR fnic =
+			IF(
+			    __TeamSpanSelected, 
+			    CALCULATE(
+			        SUMX(
+			            DISTINCT('Fact_Employee'[Employee_ID]),   -- Get distinct Employee_IDs
+			            CALCULATE(SUM('Fact_Employee'[Team_Span]),Fact_Employee[Working_Status]="Working") -- Sum the Team_Span for each distinct Employee_ID
+			        )
+			    ),
+			    CALCULATE(
+			        [Active_Headcount] - [Manager count]
+			        -- Optionally, you could filter by the selected month if needed:
+			        -- FILTER('Dim Calendar', 'Dim Calendar'[Year] = __SelectedMaxMonth)
+			    )
+			)
+			
+			RETURN
+			ABS(fnic)
+			
+			```
+		lineageTag: fac5cd2a-c0b6-48d4-97c3-1a11af4a32bf
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Manager count fY' = ```
+			
+			VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			 
+			VAR manager =
+			    CALCULATE(
+			        DISTINCTCOUNT(Fact_Employee[Manager_ID]),
+			        Fact_Employee[Working_Status]="Working",
+			        // Fact_Employee[Manager_IC_Tagging]="Manager",
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_Date_2] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			    
+			RETURN manager
+			```
+		formatString: 0
+		lineageTag: ab25459f-66c7-40f7-96db-6343edf71677
+
+	measure Manager_ID_Working = ```
+			
+			CALCULATE(
+			    DISTINCTCOUNT(Fact_Employee[Manager_ID]), 
+			    FILTER(
+			        Fact_Employee, 
+			        
+			        Fact_Employee[Working_Status] = "Working"
+			    )
+			)
+			
+			
+			```
+		formatString: 0
+		lineageTag: 70055037-9b20-42d7-850c-36365d7bd835
+
+	measure Employee_Count_or_Team_Size = ```
+			
+			 Var MaxDOJ = MAX(Fact_Employee[Date_of_Joining])
+			 Var MaxDOE = MAX(Fact_Employee[Date_of_Exit])
+			 Var SnapDate = MAX(Fact_Employee[Snapshot_Date_2])
+			 
+			RETURN
+			IF(
+			    ISFILTERED('Fact_Employee'[Manager_Span_Distribution]),
+			     CALCULATE(
+			        COUNT(Dim_Manager[Employee_id]),
+			        'Fact_Employee'[Date_of_Joining] <= MaxDOJ,
+			        (
+			            'Fact_Employee'[Date_of_Exit] > MaxDOE ||
+			            ISBLANK('Fact_Employee'[Date_of_Exit])
+			        ),
+			        'Fact_Employee'[Snapshot_Date_2] = SnapDate
+			    ),
+			    CALCULATE(
+			        DISTINCTCOUNT('Fact_Employee'[Employee_ID]),
+			        'Fact_Employee'[Manager_IC_Tagging] = "IC",
+			        'Fact_Employee'[Working_Status] = "Working"
+			    )
+			)
+			 
+			
+			
+			```
+		formatString: 0
+		lineageTag: df93c70f-d976-48a4-8a28-cbe2d37c9b9b
+
+	measure Active_Employee_Filter = ```
+			
+			VAR MaxDate = MAX('DateDimension'[FullDate])
+			VAR LatestSnapshotDate =
+			    CALCULATE(
+			        MAX(Fact_Employee[Snapshot_date_1]),
+			        Fact_Employee[Snapshot_date_1] <= MaxDate
+			    )
+			 
+			RETURN
+			    IF(
+			        COUNTROWS(
+			            FILTER(
+			                Fact_Employee,
+			                Fact_Employee[Date_of_Joining] <= MaxDate &&
+			                (ISBLANK(Fact_Employee[Date_of_Exit]) || Fact_Employee[Date_of_Exit] > MaxDate) &&
+			                Fact_Employee[Snapshot_date_1] = LatestSnapshotDate &&
+			               
+			                -- Ensure latest snapshot date for each employee in the selected period
+			                Fact_Employee[Snapshot_date_1] = CALCULATE(
+			                    MAX(Fact_Employee[Snapshot_date_1]),
+			                    ALLEXCEPT(Fact_Employee, Fact_Employee[Employee_ID]),
+			                    Fact_Employee[Snapshot_date_1] <= MaxDate
+			                )
+			            )
+			        ) > 0,
+			        1,
+			        0
+			    )
+			 
+			 
+			
+			```
+		formatString: 0
+		lineageTag: df1b6852-f40e-4d62-9282-9424c605231b
+
+	measure Inactive_Employee_Filter = ```
+			
+			VAR MaxDate = MAX('DateDimension'[FullDate])
+			VAR FiscalYearStart = 
+			    IF(
+			        MONTH(MaxDate) >= 4, 
+			        DATE(YEAR(MaxDate), 4, 1),        -- If MaxDate is April or later, start from April 1 of the same year
+			        DATE(YEAR(MaxDate) - 1, 4, 1)     -- Otherwise, start from April 1 of the previous year
+			    )
+			RETURN
+			    IF(
+			        COUNTROWS(
+			            FILTER(
+			                Fact_Employee,
+			                NOT(ISBLANK(Fact_Employee[Date_of_Exit])) &&       -- Date of Exit is not blank
+			                Fact_Employee[Date_of_Exit] >= FiscalYearStart &&  -- Date of Exit is on or after April 1 of the fiscal year
+			                Fact_Employee[Date_of_Exit] <= MaxDate &&          -- Date of Exit is on or before MaxDate
+			                Fact_Employee[Snapshot_Date_2] = MaxDate             -- Snapshot Date matches MaxDate
+			            )
+			        ) > 0,
+			        1,
+			        0
+			    )
+			
+			```
+		formatString: 0
+		lineageTag: f014738d-f0b3-4d9d-8d4d-9169cfd58991
+
+	measure Average_Tenure = ```
+			
+			VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			 
+			VAR HC =
+			    CALCULATE(
+			        AVERAGE(Fact_Employee[TenureMonths])/12,
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_Date_2] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			 
+			RETURN 
+			
+			    IF(
+			        HC= BLANK(),
+			        0,
+			        HC
+			    )
+			
+			```
+		lineageTag: 7dfb7823-4044-46df-9bdc-a15ee39ebbec
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure exit_res_deno = ```
+			CALCULATE([Separated fm for %],ALL(Dim_Employee[ExitReason]),
+			                          ALL(Dim_EmploymentType),
+			                          ALL(Dim_Employee[gender]),
+			                          ALL(Fact_Employee[Tenure_subgroup]),
+			                          ALL(Dim_AgeGroup),
+			                          ALL(Dim_Employee[FunctionTagging]),
+			                          ALL(Fact_Employee[BU_Function_Leader]),
+			                         
+			                          ALL(Dim_Level),
+			                          ALL(Dim_Rating),
+			                          ALL(Dim_Location))
+			```
+		formatString: 0
+		lineageTag: 5c0bba81-884d-4710-bcfb-e54f84eac8ba
+
+	measure 'Measure 11'
+		lineageTag: 8e6b2843-7ddb-48a8-a212-01a8c17aa929
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure Overall = [Voluntary Attrition FY]+[Inoluntary Attrition FY]
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: b9272f6f-026a-4dea-b003-d7a878e1d9d4
+
+	measure FilteredMeasure = ```
+			
+			IF(
+			    COUNTROWS(
+			        FILTER(
+			            Dim_Employee, 
+			            Dim_Employee[ExitType] = "Voluntary"
+			        )
+			    ) > 0,
+			    [Voluntary Attrition FY],
+			    "0"
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: b498e528-133d-4b75-8948-30c86f1aaf85
+
+	measure 'FilteredMeasure  Inv' = ```
+			
+			IF(
+			    COUNTROWS(
+			        FILTER(
+			            Dim_Employee, 
+			            Dim_Employee[ExitType] = "Involuntary"
+			        )
+			    ) > 0,
+			    [Inoluntary Attrition FY],
+			    "0"
+			)
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: a6dd0337-c638-4571-87bf-4a4709b88c43
+
+	measure 'Measure 12'
+		lineageTag: a4e85274-cf01-40a0-9f15-d5a54d51a84c
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'Average Headcount' = CALCULATE([Average Headcount FY]*[count month],REMOVEFILTERS(Dim_Employee[ExitType]))
+		lineageTag: 6be01cd7-0929-4e3b-806f-789489c70c4d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'FilteredMeasure Leadership' = ```
+			
+			IF(
+			    COUNTROWS(
+			        FILTER(
+			            Dim_Employee, 
+			            Dim_Employee[ExitType] = "Voluntary"
+			        )
+			    ) > 0,
+			    [Leadership_KPI],
+			    "0"
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: cfd5054d-3265-4e3c-a970-ba4cc6ad76a4
+
+	measure 'FilteredMeasure High Performer' = ```
+			
+			IF(
+			    COUNTROWS(
+			        FILTER(
+			            Dim_Employee, 
+			            Dim_Employee[ExitType] = "Voluntary"
+			        )
+			    ) > 0,
+			    [High Performer],
+			    "0"
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: c158202c-41aa-43b7-bfec-18309f5c8a7a
+
+	measure 'FilteredMeasure Early Tenure' = ```
+			
+			IF(
+			    COUNTROWS(
+			        FILTER(
+			            Dim_Employee, 
+			            Dim_Employee[ExitType] = "Voluntary"
+			        )
+			    ) > 0,
+			    [Early Tenure Att %],
+			    "0"
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 95ff3c13-3682-4a69-8c84-6f507bfcfa30
+
+	measure 'FilteredMeasure High Tenure' = ```
+			
+			IF(
+			    COUNTROWS(
+			        FILTER(
+			            Dim_Employee, 
+			            Dim_Employee[ExitType] = "Voluntary"
+			        )
+			    ) > 0,
+			    [High Tenure Att %],
+			    "0"
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: aa926b3e-de78-477e-88a8-02cdbb867acc
+
+	measure 'FilteredMeasure Female' = ```
+			
+			IF(
+			    COUNTROWS(
+			        FILTER(
+			            Dim_Employee, 
+			            Dim_Employee[ExitType] = "Voluntary"
+			        )
+			    ) > 0,
+			    [Female Attrition],
+			    "0"
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: ea081ca2-8917-4be1-83f8-94467a0930d0
+
+	measure 'FilteredMeasure Manager' =
+			
+			IF(
+			    COUNTROWS(
+			        FILTER(
+			            Fact_Employee,
+			            Fact_Employee[Manager_IC_Tagging]="Manager"
+			        )
+			    ) > 0,
+			    [Manager count],
+			    "0"
+			)
+		formatString: 0
+		lineageTag: e836f0a7-85bb-4162-a70c-95ab14e8ab27
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure 'Measure 13'
+		lineageTag: 483a1237-47e7-4a9b-a47b-53accc15faa4
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'FilteredMeasure IC' =
+			
+			IF(
+			    COUNTROWS(
+			        FILTER(
+			            Fact_Employee,
+			            Fact_Employee[Manager_IC_Tagging]="Manager"
+			        )
+			    ) > 0,
+			    "0",
+			    [Employee_Count_or_Team_Size]
+			)
+		formatString: 0
+		lineageTag: de1438d4-3821-4b77-a26a-b60e40f3fb73
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure 'Attrition Pre' = ```
+			
+			
+			VAR MaxDate = MAX('DateDimension'[FullDate])
+			VAR CurrentYear = YEAR(MaxDate)
+			VAR PreviousYear1 =
+			    IF(MONTH(MaxDate) >= 4, CurrentYear - 1, CurrentYear - 2)  -- Adjust for financial year logic
+			 
+			-- Define the start and end dates for the previous financial year
+			VAR StartDate = DATE(PreviousYear1, 4, 1)  -- Start from April 1 of the previous year
+			VAR EndDate = DATE(PreviousYear1 + 1, 3, 31)  -- End on March 31 of the current year
+			 
+			VAR L_VOL_pre =
+			    CALCULATE(
+			        [Attrition %],
+			        'DateDimension'[FullDate] >= StartDate && 'DateDimension'[FullDate] <= EndDate
+			    )
+			VAR L__VOL = IF(L_VOL_pre = BLANK(),0,L_VOL_pre) 
+			RETURN
+			L__VOL
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: 9837e1d9-f0c9-46a6-b80f-56bd9487b226
+
+	measure Test = IF(ISFILTERED(Fact_Employee[Manager_IC_Tagging]),CALCULATE(COUNT(Fact_Employee[Manager_IC_Tagging]),Fact_Employee[Manager_IC_Tagging]="Manager"),0)
+		formatString: 0
+		lineageTag: 64dd6dee-a366-448f-ac0d-f658228e06bb
+
+	measure 'Measure 14'
+		lineageTag: bef5bd04-998d-4ad0-82e5-2c08b0d14fd3
+
+		annotation 436ba87b-9c83-4389-a31b-ebd06a36be98 = {"Expression":null}
+
+		annotation 277cc1b9-af89-4597-8e15-cacc25c0886b = To use special characters in a measure name, enclose the entire name in brackets ( [] ) and add a ] to any closing brackets in the name.
+
+	measure 'Man Powercost' = ```
+			
+			VAR Current_Month_Snapshot = MAX(Fact_Employee[Snapshot_Date_2])
+			VAR Current_Month_DOE = MAX(Fact_Employee[Date_of_Exit])
+			VAR Current_Month_DOJ = MAX(Fact_Employee[Date_of_Joining])
+			 
+			VAR HC =
+			    CALCULATE(
+			        SUM(Fact_Employee[Total_Comp_in_INR]),
+			        Fact_Employee[Date_of_Joining] <= Current_Month_DOJ,
+			        Fact_Employee[Snapshot_Date_2] = Current_Month_Snapshot,
+			        OR(
+			            Fact_Employee[Date_of_Exit] > Current_Month_DOE,
+			            ISBLANK(Fact_Employee[Date_of_Exit])
+			        )
+			    )
+			
+			RETURN
+			HC/10000000
+			```
+		lineageTag: a8139214-0c8b-40f9-8899-832f1b777eb8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Active Percentage' = ```
+			
+			VAR Countemp =CALCULATE([Active_Headcount])
+			               
+			VAR a =CALCULATE([Active_Headcount],ALLSELECTED())
+			RETURN
+			DIVIDE(Countemp,a)
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 66a2847c-00f8-4627-85c1-1b646f7b5650
+
+	measure 'Unique grade' = DISTINCTCOUNT(Dim_Level[GradeLevel])
+		formatString: 0
+		lineageTag: 62c2db6b-c2eb-40bc-82c5-c819e62e4949
+
+	column Column
+		formatString: 0
+		lineageTag: 72b572d3-717e-4a79-870d-6d12958890e2
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Column]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'All Measures' = calculated
+		mode: import
+		source = ```
+				
+				
+				```
+
+	annotation PBI_Id = 4bf4b1616dc645bdb6c0133622295b2e
+

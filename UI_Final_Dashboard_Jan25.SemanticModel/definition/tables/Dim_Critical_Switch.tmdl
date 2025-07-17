@@ -1,0 +1,46 @@
+table Dim_Critical_Switch
+	lineageTag: 5c368a8b-90e6-4aa0-90dd-1a4e32278fe4
+
+	column 'Critical Group'
+		dataType: string
+		lineageTag: 62e44a2d-a239-44bd-99ec-3e73dac78cbe
+		summarizeBy: none
+		sourceColumn: Critical Group
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Critical_Switch = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("glenmark.database.windows.net"),
+				    Glenmark = Source{[Name="Glenmark"]}[Data],
+				    dbo_Fact_Employee = Glenmark{[Schema="dbo",Item="Fact_Employee"]}[Data],
+				    #"Replaced Value" = Table.ReplaceValue(dbo_Fact_Employee,"-","",Replacer.ReplaceText,{"Total_Comp_in_INR"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Replaced Value",{{"Total_Comp_in_INR", type number}}),
+				    Critical_Group = #"Changed Type"[Critical_Group],
+				    #"Converted to Table" = Table.FromList(Critical_Group, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+				    #"Renamed Columns" = Table.RenameColumns(#"Converted to Table",{{"Column1", "Critical Group"}}),
+				    #"Removed Duplicates" = Table.Distinct(#"Renamed Columns"),
+				    #"Duplicated Column" = Table.DuplicateColumn(#"Removed Duplicates", "Critical Group", "Critical Group - Copy"),
+				    #"Lowercased Text" = Table.TransformColumns(#"Duplicated Column",{{"Critical Group - Copy", Text.Lower, type text}}),
+				    #"Split Column by Delimiter" = Table.SplitColumn(#"Lowercased Text", "Critical Group - Copy", Splitter.SplitTextByDelimiter(",", QuoteStyle.Csv), {"Critical Group - Copy.1", "Critical Group - Copy.2", "Critical Group - Copy.3", "Critical Group - Copy.4"}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Split Column by Delimiter",{{"Critical Group - Copy.1", type text}, {"Critical Group - Copy.2", type text}, {"Critical Group - Copy.3", type text}, {"Critical Group - Copy.4", type text}}),
+				    #"Capitalized Each Word" = Table.TransformColumns(#"Changed Type1",{{"Critical Group - Copy.1", Text.Proper, type text}, {"Critical Group - Copy.2", Text.Proper, type text}, {"Critical Group - Copy.3", Text.Proper, type text}, {"Critical Group - Copy.4", Text.Proper, type text}}),
+				    #"Replaced Value1" = Table.ReplaceValue(#"Capitalized Each Word","Highperformer","High Performer",Replacer.ReplaceText,{"Critical Group - Copy.1", "Critical Group - Copy.2", "Critical Group - Copy.3", "Critical Group - Copy.4"}),
+				    #"Replaced Value2" = Table.ReplaceValue(#"Replaced Value1","Earlytenure","Early Tenure",Replacer.ReplaceText,{"Critical Group - Copy.1", "Critical Group - Copy.2", "Critical Group - Copy.3", "Critical Group - Copy.4"}),
+				    #"Replaced Value3" = Table.ReplaceValue(#"Replaced Value2","Hightenure","High Tenure",Replacer.ReplaceText,{"Critical Group - Copy.1", "Critical Group - Copy.2", "Critical Group - Copy.3", "Critical Group - Copy.4"}),
+				    #"Unpivoted Other Columns" = Table.UnpivotOtherColumns(#"Replaced Value3", {"Critical Group"}, "Attribute", "Value"),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Unpivoted Other Columns",{"Attribute"}),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Removed Columns1",{{"Value", "Critical Role"}}),
+				    #"Critical Group" = #"Renamed Columns1"[Critical Group],
+				    #"Converted to Table1" = Table.FromList(#"Critical Group", Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+				    #"Removed Duplicates1" = Table.Distinct(#"Converted to Table1"),
+				    #"Renamed Columns2" = Table.RenameColumns(#"Removed Duplicates1",{{"Column1", "Critical Group"}})
+				in
+				    #"Renamed Columns2"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
